@@ -1,0 +1,53 @@
+name: 🚀 Release
+
+on:
+  workflow_run:
+    workflows: ["🧪 Test"]
+    branches:
+      - main
+      - beta
+    types:
+      - completed
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && ${{ github.event.workflow_run.conclusion == 'success' }}"
+    steps:
+      - run: echo "${{ github.event.head_commit.message }}"
+
+  publish:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Nice trick to use nvmrc in actions/setup-node
+      # https://github.com/actions/setup-node/issues/32#issuecomment-872375574
+      - name: Read .nvmrc
+        run: echo NVMRC=`cat .nvmrc` >> $GITHUB_ENV
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NVMRC }}
+          registry-url: "https://npm.pkg.github.com"
+          cache: "npm"
+      - name: Cache node_modules
+        id: cache-node_modules
+        uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: node_modules-${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache-node_modules.outputs.cache-hit != 'true'
+        run: |
+          npm ci --ignore-scripts
+      - name: Setup
+        run: |
+          touch .env
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm install @semantic-release/changelog @semantic-release/git --ignore-scripts --no-save
+          npx semantic-release

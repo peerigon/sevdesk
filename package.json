@@ -1,0 +1,50 @@
+{
+  "name": "@peerigon/sevdesk",
+  "version": "0.0.0-semantically-released",
+  "description": "💵 Unofficial JavaScript SDK for sevdesk.com",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": "./dist/main.js"
+  },
+  "scripts": {},
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{js,css,md}": "prettier --write",
+    "*.prisma": "prisma format"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peerigon/sevdesk.git"
+  },
+  "keywords": [
+    "sevdesk",
+    "api",
+    "client",
+    "sdk"
+  ],
+  "author": "Peerigon GmbH",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/peerigon/sevdesk/issues"
+  },
+  "homepage": "https://github.com/peerigon/sevdesk#readme",
+  "dependencies": {
+    "@sinclair/typebox": "^0.20.5",
+    "unfetch": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.7",
+    "eslint": "^7.31.0",
+    "eslint-config-peerigon": "^31.0.0",
+    "husky": "^7.0.1",
+    "lint-staged": "^11.1.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.2",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  }
+}

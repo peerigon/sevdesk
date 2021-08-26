@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "es2020"],
+    "module": "esnext",
+    "target": "es2020",
+
+    "strict": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true
+  },
+  "exclude": [
+    // Excluding 'dist' to prevent auto suggestions from this folder
+    "dist"
+  ]
+}
