@@ -21,6 +21,13 @@
 npm install @peerigon/sevdesk
 ```
 
+## Development
+
+### How to regenerate the client
+
+- Install [swagger-codegen](https://github.com/swagger-api/swagger-codegen)
+- Run `swagger-codegen generate -i https://my.sevdesk.de/swaggerJSON/swagger.json -l typescript-fetch -o ./src/generated`
+
 ## License
 
 Unlicense
