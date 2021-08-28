@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/peerigon/sevdesk/compare/v1.1.0...v1.2.0) (2021-08-28)
+
+
+### Features
+
+* Add .npmrc ([b5fe87b](https://github.com/peerigon/sevdesk/commit/b5fe87be22c8f10d64d52b85f5279422ab60a393))
+
 # [1.1.0](https://github.com/peerigon/sevdesk/compare/v1.0.0...v1.1.0) (2021-08-28)
 
 
