@@ -39,3 +39,4 @@ jobs:
           npm test
         env:
           CI: true
+          TEST_SEVDESK_API_TOKEN: ${{ secrets.TEST_SEVDESK_API_TOKEN }}
