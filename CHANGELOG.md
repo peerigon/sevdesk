@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/peerigon/sevdesk/compare/v1.2.0...v1.3.0) (2021-08-28)
+
+
+### Features
+
+* Replace .npmrc with publishConfig ([a19f90a](https://github.com/peerigon/sevdesk/commit/a19f90a2260a9785ca11dfe29dcca075cca53043))
+
 # [1.2.0](https://github.com/peerigon/sevdesk/compare/v1.1.0...v1.2.0) (2021-08-28)
 
 
