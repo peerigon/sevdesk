@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/peerigon/sevdesk/compare/v1.3.0...v1.3.1) (2021-08-29)
+
+
+### Bug Fixes
+
+* Incorrect publish config ([1af08b7](https://github.com/peerigon/sevdesk/commit/1af08b7096dc8b0ac768dd2a64ac092f0627b98e))
+
 # [1.3.0](https://github.com/peerigon/sevdesk/compare/v1.2.0...v1.3.0) (2021-08-28)
 
 
