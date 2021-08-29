@@ -7,12 +7,14 @@
     "dist"
   ],
   "exports": {
-    ".": "./dist/main.js"
+    "node": "./dist/node.js",
+    "default": "./dist/main.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "test": "npm run node -- uvu src test.ts",
     "posttest": "tsc --noEmit",
+    "prepare": "run-s build",
     "node": "env-cmd cross-env NODE_OPTIONS='--no-warnings --loader ts-node/esm/transpile-only'"
   },
   "lint-staged": {

@@ -6,3 +6,5 @@ import { dependencies } from "./dependencies.js";
 dependencies.fetch = fetch;
 // @ts-expect-error Our polyfill doesn't match all FormData features, but it's enough for our use-case
 dependencies.FormData = FormData;
+
+export * from "./main.js";
