@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/peerigon/sevdesk/compare/v1.4.0...v1.4.1) (2021-08-29)
+
+
+### Bug Fixes
+
+* Tests ([6905898](https://github.com/peerigon/sevdesk/commit/6905898a3c93ebf5607b427b06cb130727c284e6))
+
 # [1.4.0](https://github.com/peerigon/sevdesk/compare/v1.3.2...v1.4.0) (2021-08-29)
 
 
