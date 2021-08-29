@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/peerigon/sevdesk/compare/v1.3.2...v1.4.0) (2021-08-29)
+
+
+### Bug Fixes
+
+* Package exports ([10b665b](https://github.com/peerigon/sevdesk/commit/10b665baaf543647bc7e945538170123a4ad8cee))
+
+
+### Features
+
+* Publish package also on GitHub ([00e84a9](https://github.com/peerigon/sevdesk/commit/00e84a9d71ec6c8cd4a5e64a985fc51901fd8950))
+
 ## [1.3.2](https://github.com/peerigon/sevdesk/compare/v1.3.1...v1.3.2) (2021-08-29)
 
 
