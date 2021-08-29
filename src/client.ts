@@ -12,7 +12,6 @@ import {
 import { SevDeskUrls } from "./urls.js";
 
 const DEFAULT_BASE_URL = "https://my.sevdesk.de/";
-const fetch = dependencies.fetch;
 
 type UrlParamsFor<MethodName extends keyof SevDeskUrls> = Parameters<
   Extract<SevDeskUrls[MethodName], (...args: any) => any>
@@ -39,7 +38,7 @@ export class SevDeskClient {
   async request<ResponseBody>(url: string | URL, options: RequestInit = {}) {
     const { apiKey } = this.config;
 
-    const response = await fetch(url.toString(), {
+    const response = await dependencies.fetch(url.toString(), {
       ...options,
       headers: {
         Authorization: apiKey,
