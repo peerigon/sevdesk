@@ -21,12 +21,17 @@
 npm install @peerigon/sevdesk
 ```
 
-## Development
+## API
 
-### How to regenerate the client
+### Instantiation
 
-- Install [swagger-codegen](https://github.com/swagger-api/swagger-codegen)
-- Run `swagger-codegen generate -i https://my.sevdesk.de/swaggerJSON/swagger.json -l typescript-fetch -o ./generated`
+```ts
+import { SevDeskClient } from "@peerigon/sevdesk";
+
+const sevDeskClient = new SevDeskClient({
+  apiKey: "your-sev-desk-api-token",
+});
+```
 
 ## License
 
