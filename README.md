@@ -10,7 +10,7 @@
 [![Dependencies status](https://img.shields.io/david/peerigon/@peerigon/sevdesk?style=for-the-badge)](https://david-dm.org/peerigon/@peerigon/sevdesk)
 [![Known Vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@peerigon/sevdesk?style=for-the-badge)](https://snyk.io/test/github/peerigon/@peerigon/sevdesk)<br>
 ![Written in TypeScript](https://img.shields.io/npm/types/@peerigon/sevdesk?style=for-the-badge)
-[![Coverage Status](https://img.shields.io/coveralls/github/peerigon/@peerigon/sevdesk?style=for-the-badge)](https://coveralls.io/github/peerigon/@peerigon/sevdesk?branch=master)
+[![Coverage Status](https://img.shields.io/coveralls/github/peerigon/@peerigon/sevdesk?style=for-the-badge)](https://coveralls.io/github/peerigon/@peerigon/sevdesk?branch=main)
 [![License](https://img.shields.io/npm/l/@peerigon/sevdesk?style=for-the-badge)](https://unlicense.org/)
 
 <br />

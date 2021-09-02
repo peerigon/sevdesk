@@ -18,14 +18,6 @@
     ".git": true,
     ".eslintcache": true
   },
-  "files.exclude": {
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
-    "**/.DS_Store": true,
-    "**/*.{ts,x}.html": true,
-    "**/coverage": true
-  },
   "javascript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.importModuleSpecifierEnding": "js",
   "typescript.preferences.importModuleSpecifier": "shortest",
