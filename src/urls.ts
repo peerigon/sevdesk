@@ -20,7 +20,7 @@ export class SevDeskUrls {
     path: string;
     query?: Query;
   }) {
-    const url = new URL(path, `${this.baseUrl}/api/v${version}/`);
+    const url = new URL(path, `${this.baseUrl}api/v${version}/`);
 
     Object.entries(query).forEach(([key, value]) => {
       const values = Array.isArray(value) ? value : [value];
