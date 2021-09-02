@@ -1,3 +1,11 @@
+## [1.4.2](https://github.com/peerigon/sevdesk/compare/v1.4.1...v1.4.2) (2021-09-02)
+
+
+### Bug Fixes
+
+* Double slash in URLs ([ecc300b](https://github.com/peerigon/sevdesk/commit/ecc300b67d0721b24bd0fddab2f08b0d8af21fbf))
+* Incorrect package.json entries ([62a0cf8](https://github.com/peerigon/sevdesk/commit/62a0cf8d555ff1fd49f11e0aa76dc85c6586f91c))
+
 ## [1.4.1](https://github.com/peerigon/sevdesk/compare/v1.4.0...v1.4.1) (2021-08-29)
 
 
