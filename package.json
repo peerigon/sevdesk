@@ -3,13 +3,6 @@
   "version": "0.0.0-semantically-released",
   "description": "💵 Unofficial JavaScript SDK for sevdesk.com",
   "type": "module",
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    "node": "./dist/node.js",
-    "default": "./dist/main.js"
-  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "test": "npm run node -- uvu src test.ts",
@@ -17,6 +10,16 @@
     "prepare": "run-s build",
     "node": "env-cmd cross-env NODE_OPTIONS='--no-warnings --loader ts-node/esm/transpile-only'"
   },
+  "main": "./dist/node.js",
+  "browser": "./dist/main.js",
+  "exports": {
+    "node": "./dist/node.js",
+    "default": "./dist/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
   "lint-staged": {
     "*.{ts,js}": "eslint --cache --fix",
     "*.{ts,js,css,md}": "prettier --write"
