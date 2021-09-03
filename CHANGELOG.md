@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/peerigon/sevdesk/compare/v1.5.0...v1.6.0) (2021-09-03)
+
+
+### Features
+
+* Switch to MIT license ([7ac0390](https://github.com/peerigon/sevdesk/commit/7ac0390d5e4423a506e482fa11f2b8c668eb60c7))
+
 # [1.5.0](https://github.com/peerigon/sevdesk/compare/v1.4.2...v1.5.0) (2021-09-03)
 
 
