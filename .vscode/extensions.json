@@ -4,7 +4,6 @@
     "christian-kohler.npm-intellisense",
     "leizongmin.node-module-intellisense",
     "esbenp.prettier-vscode",
-    "wayou.vscode-todo-highlight",
-    "prisma.prisma"
+    "wayou.vscode-todo-highlight"
   ]
 }
