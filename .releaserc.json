@@ -11,6 +11,14 @@
       }
     ],
     "@semantic-release/github",
-    "@semantic-release/npm"
+    [
+      "@amanda-mitchell/semantic-release-npm-multiple",
+      {
+        "registries": {
+          "github": {},
+          "public": {}
+        }
+      }
+    ]
   ]
 }
