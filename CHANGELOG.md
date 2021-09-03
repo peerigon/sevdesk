@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/peerigon/sevdesk/compare/v1.4.2...v1.5.0) (2021-09-03)
+
+
+### Bug Fixes
+
+* Wrong version number in test-and-release workflow ([40a423a](https://github.com/peerigon/sevdesk/commit/40a423a9fea5703b1967f84d2168912318e6e2f8))
+
+
+### Features
+
+* Improve CI workflow ([330c183](https://github.com/peerigon/sevdesk/commit/330c183ea58ea48e29b2e084971398e37e620db3))
+
 ## [1.4.2](https://github.com/peerigon/sevdesk/compare/v1.4.1...v1.4.2) (2021-09-02)
 
 
