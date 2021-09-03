@@ -45,6 +45,7 @@ jobs:
           npm ci --ignore-scripts
       - name: 🧪 Test
         run: |
+          touch .env
           npm test
         env:
           CI: true
