@@ -44,7 +44,7 @@
     "sdk"
   ],
   "author": "Peerigon GmbH",
-  "license": "Unlicense",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/peerigon/sevdesk/issues"
   },
