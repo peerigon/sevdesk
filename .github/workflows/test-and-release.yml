@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
+        uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b # pin@0.9.1
       - name: ⬇️ Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # pin@v2
       - name: ⎔ Setup node ${{ matrix.node-version }}
@@ -55,10 +55,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: 🚀 Release
-        if: "contains('
-          refs/heads/main
-          refs/heads/beta
-          ', github.ref) && matrix.node-version == '16.x'"
+        if: "contains(' refs/heads/main refs/heads/beta ', github.ref) &&
+          matrix.node-version == '16.x'"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
