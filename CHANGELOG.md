@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/peerigon/sevdesk/compare/v1.6.0...v1.7.0) (2021-09-03)
+
+
+### Features
+
+* Publish package also on GitHub ([5d42053](https://github.com/peerigon/sevdesk/commit/5d420531d2fb82fe9a19166461b28207f3199d09))
+
 # [1.6.0](https://github.com/peerigon/sevdesk/compare/v1.5.0...v1.6.0) (2021-09-03)
 
 
