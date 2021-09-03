@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@v0.9
+        uses: styfle/cancel-workflow-action@0.9.1
       - name: ⬇️ Checkout repo
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # pin@v2
       - name: ⎔ Setup node ${{ matrix.node-version }}
