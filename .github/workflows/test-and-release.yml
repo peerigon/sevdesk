@@ -60,6 +60,7 @@ jobs:
         if: "contains(' refs/heads/main refs/heads/beta ', github.ref) &&
           matrix.node-version == '16.x'"
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_NPM_CONFIG_REGISTRY: https://npm.pkg.github.com/
           GITHUB_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUBLIC_NPM_CONFIG_REGISTRY: https://registry.npmjs.org
