@@ -1,9 +1,3 @@
 {
-  "recommendations": [
-    "dbaeumer.vscode-eslint",
-    "christian-kohler.npm-intellisense",
-    "leizongmin.node-module-intellisense",
-    "esbenp.prettier-vscode",
-    "wayou.vscode-todo-highlight"
-  ]
+  "recommendations": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
 }
