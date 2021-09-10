@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/peerigon/sevdesk/compare/v1.7.0...v1.7.1) (2021-09-10)
+
+
+### Bug Fixes
+
+* Errors in generated typings ([e9c1089](https://github.com/peerigon/sevdesk/commit/e9c1089f7770f0d8e17bcb6e22941e4d406995e2))
+
 # [1.7.0](https://github.com/peerigon/sevdesk/compare/v1.6.0...v1.7.0) (2021-09-03)
 
 
