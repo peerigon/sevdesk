@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/peerigon/sevdesk/compare/v1.7.1...v2.0.0) (2022-09-03)
+
+
+### chore
+
+* Update packages ([8d2f504](https://github.com/peerigon/sevdesk/commit/8d2f504fc19a3c11b0d13ecab9dd54d20d0c26a1))
+
+
+### BREAKING CHANGES
+
+* This is potentially breaking if any of the upstream packages removed support for a specific Node version
+
 ## [1.7.1](https://github.com/peerigon/sevdesk/compare/v1.7.0...v1.7.1) (2021-09-10)
 
 
