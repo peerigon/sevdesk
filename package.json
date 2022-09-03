@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "test": "npm run node -- uvu src '.*.test.ts'",
-    "test:ci": "c8 --reporter lcov npm test",
-    "posttest": "tsc --noEmit",
+    "test": "run-p test:suite test:lint test:types",
+    "test:ci": "run-p test:suite:ci test:lint test:types",
+    "test:suite": "npm run env -- uvu src '.*.test.ts'",
+    "test:suite:ci": "npm run env -- c8 --reporter lcov uvu src '.*.test.ts'",
+    "test:lint": "eslint --max-warnings 0 --cache --ext js,jsx,cjs,mjs,ts,tsx .",
+    "test:types": "tsc --noEmit",
     "prepare": "run-s husky:install build",
     "release": "semantic-release",
     "husky:install": "husky install",
-    "node": "env-cmd cross-env NODE_OPTIONS='--no-warnings --loader ts-node/esm/transpile-only'"
+    "env": "env-cmd cross-env NODE_OPTIONS='--no-warnings --loader ts-node/esm/transpile-only'"
   },
   "main": "./dist/node.js",
   "browser": "./dist/main.js",

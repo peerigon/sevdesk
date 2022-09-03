@@ -31,7 +31,7 @@ test("Get invoices", async () => {
 
   const {
     objects: [invoice],
-  } = await sevDeskClient.getInvoice({ id: firstInvoice.id! });
+  } = await sevDeskClient.getInvoice({ id: firstInvoice.id });
 
   assertIsInvoice(invoice);
 });
