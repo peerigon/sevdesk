@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "test": "npm run node -- uvu src test.ts",
+    "test": "npm run node -- uvu src '.*.test.ts'",
     "test:ci": "c8 --reporter lcov npm test",
     "posttest": "tsc --noEmit",
     "prepare": "run-s husky:install build",
