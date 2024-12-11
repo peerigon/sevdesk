@@ -120,4 +120,15 @@ export class SevDeskUrls {
       query,
     });
   }
+
+  // -------------------------------------------------------
+  // PaymentMethod
+  // -------------------------------------------------------
+
+  apiGetPaymentMethodsUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `PaymentMethod`,
+      query,
+    });
+  }
 }

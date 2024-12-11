@@ -10,6 +10,7 @@ import {
   ModelDocument,
   ModelDocumentFolder,
   ModelInvoice,
+  ModelPaymentMethod,
   ModelUnity,
 } from "./interfaces.js";
 
@@ -93,6 +94,13 @@ test("Get unities", async () => {
   unities.forEach(assertIsUnity);
 });
 
+test("Get payment methods", async () => {
+  const { objects: paymentMethods } = await sevDeskClient.getPaymentMethods();
+
+  assert.is(paymentMethods.length > 0, true);
+  paymentMethods.forEach(assertIsPaymentMethod);
+});
+
 const assertIsInvoice = (invoice: ModelInvoice) => {
   assert.is(invoice.objectName, "Invoice");
 };
@@ -115,6 +123,10 @@ const assertIsCommunicationWay = (communicationWay: ModelCommunicationWay) => {
 
 const assertIsUnity = (unity: ModelUnity) => {
   assert.is(unity.objectName, "Unity");
+};
+
+const assertIsPaymentMethod = (paymentMethod: ModelPaymentMethod) => {
+  assert.is(paymentMethod.objectName, "PaymentMethod");
 };
 
 test.run();

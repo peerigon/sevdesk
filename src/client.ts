@@ -7,6 +7,7 @@ import {
   ModelDocument,
   ModelDocumentFolder,
   ModelInvoice,
+  ModelPaymentMethod,
   ModelUnity,
 } from "./interfaces.js";
 import { SevDeskUrls } from "./urls.js";
@@ -224,6 +225,23 @@ export class SevDeskClient {
     const url = this.urls.apiGetUnitiesUrl(params);
 
     return this.request<{ objects: Array<Required<ModelUnity>> }>(url, {
+      method: "GET",
+    });
+  }
+
+  // -------------------------------------------------------
+  // PaymentMethod
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all payment methods
+   */
+  async getPaymentMethods(
+    params: UrlParamsFor<"apiGetPaymentMethodsUrl"> = {}
+  ) {
+    const url = this.urls.apiGetPaymentMethodsUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelPaymentMethod>> }>(url, {
       method: "GET",
     });
   }
