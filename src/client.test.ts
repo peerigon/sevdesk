@@ -47,6 +47,109 @@ test("Get next invoice number", async () => {
   assert.type(nextInvoiceNumber, "string");
 });
 
+test("Create a new invoice", async () => {
+  const { objects: invoiceNumber } = await sevDeskClient.getNextInvoiceNumber({
+    invoiceType: "RE",
+    useNextNumber: true,
+  });
+  const { objects: contacts } = await sevDeskClient.getContacts();
+
+  const {
+    objects: { invoice },
+  } = await sevDeskClient.saveInvoice({
+    invoice: {
+      // id: null,
+      objectName: "Invoice",
+      invoiceNumber,
+      contact: {
+        id: contacts[0].id,
+        objectName: "Contact",
+      },
+      contactPerson: {
+        id: env.CONTACT_PERSON_ID,
+        objectName: "SevUser",
+      },
+      invoiceDate: "01.01.2022",
+      header: `Invoice ${invoiceNumber}`,
+      headText: "header information",
+      footText: "footer information",
+      timeToPay: 20,
+      discount: 0,
+      address: "name\nstreet\npostCode city",
+      addressCountry: {
+        id: 1,
+        objectName: "StaticCountry",
+      },
+      payDate: "2019-08-24T14:15:22Z",
+      deliveryDate: "01.01.2022",
+      deliveryDateUntil: null,
+      status: "100",
+      smallSettlement: 0,
+      taxRate: 0,
+      taxRule: {
+        id: "1",
+        objectName: "TaxRule",
+      },
+      taxText: "Umsatzsteuer 19%",
+      taxType: "default",
+      taxSet: null,
+      paymentMethod: {
+        id: 21919,
+        objectName: "PaymentMethod",
+      },
+      sendDate: "01.01.2020",
+      invoiceType: "RE",
+      currency: "EUR",
+      showNet: "1",
+      sendType: "VPR",
+      origin: null,
+      customerInternalNote: null,
+      propertyIsEInvoice: false,
+      mapAll: true,
+    },
+    invoicePosSave: [
+      {
+        id: null,
+        objectName: "InvoicePos",
+        mapAll: true,
+        // part: {
+        //   id: 0,
+        //   objectName: 'Part',
+        // },
+        quantity: 1,
+        price: 100,
+        name: "Dragonglass",
+        unity: {
+          id: 1,
+          objectName: "Unity",
+        },
+        positionNumber: 0,
+        text: "string",
+        discount: 0.1,
+        taxRate: 19,
+        priceGross: 100,
+        priceTax: 0.1,
+      },
+    ],
+    invoicePosDelete: null,
+    filename: "string",
+    discountSave: [
+      {
+        discount: "true",
+        text: "string",
+        percentage: true,
+        value: 0,
+        objectName: "Discounts",
+        mapAll: "true",
+      },
+    ],
+    discountDelete: null,
+  });
+
+  console.log(invoice);
+  assertIsInvoice(invoice);
+});
+
 test("Get document folders", async () => {
   const { objects: documentFolders } = await sevDeskClient.getDocumentFolders();
 

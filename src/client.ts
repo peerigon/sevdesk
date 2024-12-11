@@ -113,6 +113,21 @@ export class SevDeskClient {
     }>(url, { method: "GET" });
   }
 
+  /**
+   * Create a new invoice
+   */
+  async saveInvoice(body: unknown) {
+    const url = this.urls.apiSaveInvoiceUrl();
+
+    return this.request<{
+      objects: { invoice: Required<ModelInvoice> };
+    }>(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   // -------------------------------------------------------
   // DocumentFolder
   // -------------------------------------------------------
