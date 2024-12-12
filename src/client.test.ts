@@ -11,6 +11,7 @@ import {
   ModelDocumentFolder,
   ModelInvoice,
   ModelPaymentMethod,
+  ModelTag,
   ModelUnity,
 } from "./interfaces.js";
 
@@ -204,6 +205,12 @@ test("Get payment methods", async () => {
   paymentMethods.forEach(assertIsPaymentMethod);
 });
 
+test("Get tags", async () => {
+  const { objects: tags } = await sevDeskClient.getTags();
+
+  assert.is(tags.length > 0, true);
+  tags.forEach(assertIsTag);
+});
 const assertIsInvoice = (invoice: ModelInvoice) => {
   assert.is(invoice.objectName, "Invoice");
 };
@@ -230,6 +237,10 @@ const assertIsUnity = (unity: ModelUnity) => {
 
 const assertIsPaymentMethod = (paymentMethod: ModelPaymentMethod) => {
   assert.is(paymentMethod.objectName, "PaymentMethod");
+};
+
+const assertIsTag = (tag: ModelTag) => {
+  assert.is(tag.objectName, "Tag");
 };
 
 test.run();

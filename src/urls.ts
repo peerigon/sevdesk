@@ -131,4 +131,15 @@ export class SevDeskUrls {
       query,
     });
   }
+
+  // -------------------------------------------------------
+  // Tag
+  // -------------------------------------------------------
+
+  apiGetTagsUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `Tag`,
+      query,
+    });
+  }
 }
