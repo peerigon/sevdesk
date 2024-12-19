@@ -98,6 +98,27 @@ export class SevDeskUrls {
   }
 
   // -------------------------------------------------------
+  // ContactAddress
+  // -------------------------------------------------------
+
+  apiGetContactAddressesUrl({
+    contactId,
+    ...query
+  }: { contactId?: string | undefined } & DefaultCollectionQuery & Query = {}) {
+    if (contactId) {
+      return this.apiUrl({
+        path: `Contact/${contactId}/getAddresses`,
+        query,
+      });
+    }
+
+    return this.apiUrl({
+      path: `ContactAddress`,
+      query,
+    });
+  }
+
+  // -------------------------------------------------------
   // CommunicationWay
   // -------------------------------------------------------
 

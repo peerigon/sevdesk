@@ -4,6 +4,7 @@ import { UnknownApiError } from "./errors.js";
 import {
   ModelCommunicationWay,
   ModelContact,
+  ModelContactAddress,
   ModelDocument,
   ModelDocumentFolder,
   ModelInvoice,
@@ -205,6 +206,26 @@ export class SevDeskClient {
     return this.request<{ objects: Array<Required<ModelContact>> }>(url, {
       method: "GET",
     });
+  }
+
+  // -------------------------------------------------------
+  // ContactAddress
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all contact addresses
+   */
+  async getContactAddresses(
+    params: UrlParamsFor<"apiGetContactAddressesUrl"> = {}
+  ) {
+    const url = this.urls.apiGetContactAddressesUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelContactAddress>> }>(
+      url,
+      {
+        method: "GET",
+      }
+    );
   }
 
   // -------------------------------------------------------

@@ -7,6 +7,7 @@ import * as env from "./tests/env.js";
 import {
   ModelCommunicationWay,
   ModelContact,
+  ModelContactAddress,
   ModelDocument,
   ModelDocumentFolder,
   ModelInvoice,
@@ -180,6 +181,24 @@ test("Get contacts", async () => {
   contacts.forEach(assertIsContact);
 });
 
+test("Get contact addresses (without contact ID)", async () => {
+  const { objects: contactAddresses } =
+    await sevDeskClient.getContactAddresses();
+
+  assert.is(contactAddresses.length > 0, true);
+  contactAddresses.forEach(assertIsContactAddress);
+});
+
+test("Get contact addresses (with contact ID)", async () => {
+  const { objects: contacts } = await sevDeskClient.getContacts();
+  const { objects: contactAddresses } = await sevDeskClient.getContactAddresses(
+    { contactId: contacts[0].id }
+  );
+
+  assert.is(contactAddresses.length > 0, true);
+  contactAddresses.forEach(assertIsContactAddress);
+});
+
 test("Get communication ways", async () => {
   const { objects: communicationWays } =
     await sevDeskClient.getCommunicationWays();
@@ -230,6 +249,10 @@ const assertIsDocument = (document: ModelDocument) => {
 
 const assertIsContact = (contact: ModelContact) => {
   assert.is(contact.objectName, "Contact");
+};
+
+const assertIsContactAddress = (contact: ModelContactAddress) => {
+  assert.is(contact.objectName, "ContactAddress");
 };
 
 const assertIsCommunicationWay = (communicationWay: ModelCommunicationWay) => {
