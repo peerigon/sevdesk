@@ -11,6 +11,7 @@ import {
   ModelDocument,
   ModelDocumentFolder,
   ModelInvoice,
+  ModelPart,
   ModelPaymentMethod,
   ModelSevUser,
   ModelStaticCountry,
@@ -243,6 +244,13 @@ test("Get static countries", async () => {
   countries.forEach(assertIsStaticCountry);
 });
 
+test("Get parts", async () => {
+  const { objects: parts } = await sevDeskClient.getParts();
+
+  assert.is(parts.length > 0, true);
+  parts.forEach(assertIsPart);
+});
+
 const assertIsInvoice = (invoice: ModelInvoice) => {
   assert.is(invoice.objectName, "Invoice");
 };
@@ -285,6 +293,10 @@ const assertIsSevUser = (user: ModelSevUser) => {
 
 const assertIsStaticCountry = (user: ModelStaticCountry) => {
   assert.is(user.objectName, "StaticCountry");
+};
+
+const assertIsPart = (part: ModelPart) => {
+  assert.is(part.objectName, "Part");
 };
 
 test.run();

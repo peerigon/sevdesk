@@ -185,4 +185,15 @@ export class SevDeskUrls {
       query,
     });
   }
+
+  // -------------------------------------------------------
+  // Part
+  // -------------------------------------------------------
+
+  apiGetPartsUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `Part`,
+      query,
+    });
+  }
 }

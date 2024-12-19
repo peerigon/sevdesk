@@ -8,6 +8,7 @@ import {
   ModelDocument,
   ModelDocumentFolder,
   ModelInvoice,
+  ModelPart,
   ModelPaymentMethod,
   ModelSevUser,
   ModelStaticCountry,
@@ -328,6 +329,21 @@ export class SevDeskClient {
     const url = this.urls.apiGetStaticCountriesUrl(params);
 
     return this.request<{ objects: Array<Required<ModelStaticCountry>> }>(url, {
+      method: "GET",
+    });
+  }
+
+  // -------------------------------------------------------
+  // Part
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all parts
+   */
+  async getParts(params: UrlParamsFor<"apiGetPartsUrl"> = {}) {
+    const url = this.urls.apiGetPartsUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelPart>> }>(url, {
       method: "GET",
     });
   }
