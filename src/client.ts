@@ -66,7 +66,7 @@ export class SevDeskClient {
       throw error;
     }
     if (response.ok === false || error) {
-      const message = error?.message ?? body?.error?.message;
+      const message = error?.message ?? body?.error?.message ?? body.message;
 
       throw new UnknownApiError(message, { response });
     }
