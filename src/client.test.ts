@@ -13,6 +13,7 @@ import {
   ModelInvoice,
   ModelPaymentMethod,
   ModelSevUser,
+  ModelStaticCountry,
   ModelTag,
   ModelUnity,
 } from "./interfaces.js";
@@ -235,6 +236,13 @@ test("Get users", async () => {
   users.forEach(assertIsSevUser);
 });
 
+test("Get static countries", async () => {
+  const { objects: countries } = await sevDeskClient.getStaticCountries();
+
+  assert.is(countries.length > 0, true);
+  countries.forEach(assertIsStaticCountry);
+});
+
 const assertIsInvoice = (invoice: ModelInvoice) => {
   assert.is(invoice.objectName, "Invoice");
 };
@@ -273,6 +281,10 @@ const assertIsTag = (tag: ModelTag) => {
 
 const assertIsSevUser = (user: ModelSevUser) => {
   assert.is(user.objectName, "SevUser");
+};
+
+const assertIsStaticCountry = (user: ModelStaticCountry) => {
+  assert.is(user.objectName, "StaticCountry");
 };
 
 test.run();

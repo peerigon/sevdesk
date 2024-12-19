@@ -10,6 +10,7 @@ import {
   ModelInvoice,
   ModelPaymentMethod,
   ModelSevUser,
+  ModelStaticCountry,
   ModelTag,
   ModelUnity,
 } from "./interfaces.js";
@@ -310,6 +311,23 @@ export class SevDeskClient {
     const url = this.urls.apiGetSevUsersUrl(params);
 
     return this.request<{ objects: Array<Required<ModelSevUser>> }>(url, {
+      method: "GET",
+    });
+  }
+
+  // -------------------------------------------------------
+  // StaticCountry
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all static countries
+   */
+  async getStaticCountries(
+    params: UrlParamsFor<"apiGetStaticCountriesUrl"> = {}
+  ) {
+    const url = this.urls.apiGetStaticCountriesUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelStaticCountry>> }>(url, {
       method: "GET",
     });
   }

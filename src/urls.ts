@@ -174,4 +174,15 @@ export class SevDeskUrls {
       query,
     });
   }
+
+  // -------------------------------------------------------
+  // StaticCountry
+  // -------------------------------------------------------
+
+  apiGetStaticCountriesUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `StaticCountry`,
+      query,
+    });
+  }
 }
