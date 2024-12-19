@@ -8,6 +8,7 @@ import {
   ModelDocumentFolder,
   ModelInvoice,
   ModelPaymentMethod,
+  ModelSevUser,
   ModelTag,
   ModelUnity,
 } from "./interfaces.js";
@@ -273,6 +274,21 @@ export class SevDeskClient {
     const url = this.urls.apiGetTagsUrl(params);
 
     return this.request<{ objects: Array<Required<ModelTag>> }>(url, {
+      method: "GET",
+    });
+  }
+
+  // -------------------------------------------------------
+  // SevUser
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all users
+   */
+  async getSevUsers(params: UrlParamsFor<"apiGetSevUsersUrl"> = {}) {
+    const url = this.urls.apiGetSevUsersUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelSevUser>> }>(url, {
       method: "GET",
     });
   }

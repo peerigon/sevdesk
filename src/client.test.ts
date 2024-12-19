@@ -11,6 +11,7 @@ import {
   ModelDocumentFolder,
   ModelInvoice,
   ModelPaymentMethod,
+  ModelSevUser,
   ModelTag,
   ModelUnity,
 } from "./interfaces.js";
@@ -49,10 +50,7 @@ test("Get next invoice number", async () => {
 });
 
 test("Create a new invoice", async () => {
-  const { objects: invoiceNumber } = await sevDeskClient.getNextInvoiceNumber({
-    invoiceType: "RE",
-    useNextNumber: true,
-  });
+  const invoiceNumber = `TEST-${new Date().toISOString()}`;
   const { objects: contacts } = await sevDeskClient.getContacts();
 
   const {
@@ -147,7 +145,6 @@ test("Create a new invoice", async () => {
     discountDelete: null,
   });
 
-  console.log(invoice);
   assertIsInvoice(invoice);
 });
 
@@ -211,6 +208,14 @@ test("Get tags", async () => {
   assert.is(tags.length > 0, true);
   tags.forEach(assertIsTag);
 });
+
+test("Get users", async () => {
+  const { objects: users } = await sevDeskClient.getSevUsers();
+
+  assert.is(users.length > 0, true);
+  users.forEach(assertIsSevUser);
+});
+
 const assertIsInvoice = (invoice: ModelInvoice) => {
   assert.is(invoice.objectName, "Invoice");
 };
@@ -241,6 +246,10 @@ const assertIsPaymentMethod = (paymentMethod: ModelPaymentMethod) => {
 
 const assertIsTag = (tag: ModelTag) => {
   assert.is(tag.objectName, "Tag");
+};
+
+const assertIsSevUser = (user: ModelSevUser) => {
+  assert.is(user.objectName, "SevUser");
 };
 
 test.run();

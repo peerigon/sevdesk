@@ -142,4 +142,15 @@ export class SevDeskUrls {
       query,
     });
   }
+
+  // -------------------------------------------------------
+  // SevUser
+  // -------------------------------------------------------
+
+  apiGetSevUsersUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `SevUser`,
+      query,
+    });
+  }
 }
