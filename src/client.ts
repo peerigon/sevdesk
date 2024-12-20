@@ -8,6 +8,7 @@ import {
   ModelDocument,
   ModelDocumentFolder,
   ModelInvoice,
+  ModelInvoicePos,
   ModelPart,
   ModelPaymentMethod,
   ModelSevUser,
@@ -125,7 +126,11 @@ export class SevDeskClient {
     const url = this.urls.apiSaveInvoiceUrl();
 
     return this.request<{
-      objects: { invoice: Required<ModelInvoice> };
+      objects: {
+        invoice: Required<ModelInvoice>;
+        invoicePos: Array<Required<ModelInvoicePos>>;
+        filename: string;
+      };
     }>(url, {
       method: "POST",
       body: JSON.stringify(body),
