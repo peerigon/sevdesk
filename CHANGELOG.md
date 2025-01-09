@@ -18,6 +18,26 @@
 * Adds getTags ([287bd03](https://github.com/peerigon/sevdesk/commit/287bd03248ee78ee60af0d39f908e3bcf2e0725e))
 * Adds saveInvoice ([7d9b8a9](https://github.com/peerigon/sevdesk/commit/7d9b8a94981730649e7c504615fe2895aff42437))
 
+# [2.1.0](https://github.com/peerigon/sevdesk/compare/v2.0.0...v2.1.0) (2025-01-09)
+
+
+### Bug Fixes
+
+* Add .prettierrc.json to make double quotes explicit ([6eb7d9b](https://github.com/peerigon/sevdesk/commit/6eb7d9bc28788f88c4fe1b6d038c276ba4ba1e6c))
+* Adds missing properties to saveInvoice response ([ad88088](https://github.com/peerigon/sevdesk/commit/ad88088b8fb802b0bb003c754de8c97ae67e508d))
+
+
+### Features
+
+* Add getPaymentMethods, saveInvoice, getTags, getSevUsers, getContactAddresses, getStaticCountries, getParts ([80ea7a6](https://github.com/peerigon/sevdesk/commit/80ea7a62b586eccae75e6b9504f10540f65ac599))
+* Adds getContactAdresses ([a0f91b3](https://github.com/peerigon/sevdesk/commit/a0f91b33deb0dcd9f25f5e93134581646904f927))
+* Adds getParts ([f0bbb2d](https://github.com/peerigon/sevdesk/commit/f0bbb2d5ded7ad9c5ad7f679778d655721d665bb))
+* Adds getPaymentMethods ([5a981d5](https://github.com/peerigon/sevdesk/commit/5a981d51c9d5b9c231791478292820e13b44c959))
+* Adds getSevUsers ([033de13](https://github.com/peerigon/sevdesk/commit/033de13c4c6c59a8a88558400fb6ed6ca3443e95))
+* Adds getStaticCountries ([202eeaa](https://github.com/peerigon/sevdesk/commit/202eeaa515d27d195438f7b8c5c62f030354b985))
+* Adds getTags ([287bd03](https://github.com/peerigon/sevdesk/commit/287bd03248ee78ee60af0d39f908e3bcf2e0725e))
+* Adds saveInvoice ([7d9b8a9](https://github.com/peerigon/sevdesk/commit/7d9b8a94981730649e7c504615fe2895aff42437))
+
 # [2.0.0](https://github.com/peerigon/sevdesk/compare/v1.7.1...v2.0.0) (2022-09-03)
 
 
