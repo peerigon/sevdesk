@@ -4,9 +4,16 @@ import { UnknownApiError } from "./errors.js";
 import {
   ModelCommunicationWay,
   ModelContact,
+  ModelContactAddress,
   ModelDocument,
   ModelDocumentFolder,
   ModelInvoice,
+  ModelInvoicePos,
+  ModelPart,
+  ModelPaymentMethod,
+  ModelSevUser,
+  ModelStaticCountry,
+  ModelTag,
   ModelUnity,
 } from "./interfaces.js";
 import { SevDeskUrls } from "./urls.js";
@@ -63,7 +70,7 @@ export class SevDeskClient {
       throw error;
     }
     if (response.ok === false || error) {
-      const message = error?.message ?? body?.error?.message;
+      const message = error?.message ?? body?.error?.message ?? body.message;
 
       throw new UnknownApiError(message, { response });
     }
@@ -110,6 +117,25 @@ export class SevDeskClient {
     return this.request<{
       objects: string;
     }>(url, { method: "GET" });
+  }
+
+  /**
+   * Create a new invoice
+   */
+  async saveInvoice(body: unknown) {
+    const url = this.urls.apiSaveInvoiceUrl();
+
+    return this.request<{
+      objects: {
+        invoice: Required<ModelInvoice>;
+        invoicePos: Array<Required<ModelInvoicePos>>;
+        filename: string;
+      };
+    }>(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   // -------------------------------------------------------
@@ -190,6 +216,26 @@ export class SevDeskClient {
   }
 
   // -------------------------------------------------------
+  // ContactAddress
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all contact addresses
+   */
+  async getContactAddresses(
+    params: UrlParamsFor<"apiGetContactAddressesUrl"> = {}
+  ) {
+    const url = this.urls.apiGetContactAddressesUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelContactAddress>> }>(
+      url,
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  // -------------------------------------------------------
   // CommunicationWay
   // -------------------------------------------------------
 
@@ -224,6 +270,85 @@ export class SevDeskClient {
     const url = this.urls.apiGetUnitiesUrl(params);
 
     return this.request<{ objects: Array<Required<ModelUnity>> }>(url, {
+      method: "GET",
+    });
+  }
+
+  // -------------------------------------------------------
+  // PaymentMethod
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all payment methods
+   */
+  async getPaymentMethods(
+    params: UrlParamsFor<"apiGetPaymentMethodsUrl"> = {}
+  ) {
+    const url = this.urls.apiGetPaymentMethodsUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelPaymentMethod>> }>(url, {
+      method: "GET",
+    });
+  }
+
+  // -------------------------------------------------------
+  // Tag
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all tags
+   */
+  async getTags(params: UrlParamsFor<"apiGetTagsUrl"> = {}) {
+    const url = this.urls.apiGetTagsUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelTag>> }>(url, {
+      method: "GET",
+    });
+  }
+
+  // -------------------------------------------------------
+  // SevUser
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all users
+   */
+  async getSevUsers(params: UrlParamsFor<"apiGetSevUsersUrl"> = {}) {
+    const url = this.urls.apiGetSevUsersUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelSevUser>> }>(url, {
+      method: "GET",
+    });
+  }
+
+  // -------------------------------------------------------
+  // StaticCountry
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all static countries
+   */
+  async getStaticCountries(
+    params: UrlParamsFor<"apiGetStaticCountriesUrl"> = {}
+  ) {
+    const url = this.urls.apiGetStaticCountriesUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelStaticCountry>> }>(url, {
+      method: "GET",
+    });
+  }
+
+  // -------------------------------------------------------
+  // Part
+  // -------------------------------------------------------
+
+  /**
+   * Get an overview of all parts
+   */
+  async getParts(params: UrlParamsFor<"apiGetPartsUrl"> = {}) {
+    const url = this.urls.apiGetPartsUrl(params);
+
+    return this.request<{ objects: Array<Required<ModelPart>> }>(url, {
       method: "GET",
     });
   }

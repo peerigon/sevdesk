@@ -98,6 +98,27 @@ export class SevDeskUrls {
   }
 
   // -------------------------------------------------------
+  // ContactAddress
+  // -------------------------------------------------------
+
+  apiGetContactAddressesUrl({
+    contactId,
+    ...query
+  }: { contactId?: string | undefined } & DefaultCollectionQuery & Query = {}) {
+    if (contactId) {
+      return this.apiUrl({
+        path: `Contact/${contactId}/getAddresses`,
+        query,
+      });
+    }
+
+    return this.apiUrl({
+      path: `ContactAddress`,
+      query,
+    });
+  }
+
+  // -------------------------------------------------------
   // CommunicationWay
   // -------------------------------------------------------
 
@@ -117,6 +138,61 @@ export class SevDeskUrls {
   apiGetUnitiesUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
     return this.apiUrl({
       path: `Unity`,
+      query,
+    });
+  }
+
+  // -------------------------------------------------------
+  // PaymentMethod
+  // -------------------------------------------------------
+
+  apiGetPaymentMethodsUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `PaymentMethod`,
+      query,
+    });
+  }
+
+  // -------------------------------------------------------
+  // Tag
+  // -------------------------------------------------------
+
+  apiGetTagsUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `Tag`,
+      query,
+    });
+  }
+
+  // -------------------------------------------------------
+  // SevUser
+  // -------------------------------------------------------
+
+  apiGetSevUsersUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `SevUser`,
+      query,
+    });
+  }
+
+  // -------------------------------------------------------
+  // StaticCountry
+  // -------------------------------------------------------
+
+  apiGetStaticCountriesUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `StaticCountry`,
+      query,
+    });
+  }
+
+  // -------------------------------------------------------
+  // Part
+  // -------------------------------------------------------
+
+  apiGetPartsUrl({ ...query }: DefaultCollectionQuery & Query = {}) {
+    return this.apiUrl({
+      path: `Part`,
       query,
     });
   }
