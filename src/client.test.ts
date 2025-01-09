@@ -52,9 +52,12 @@ test("Get next invoice number", async () => {
   assert.type(nextInvoiceNumber, "string");
 });
 
-test("Create a new invoice", async () => {
+// Manual test
+// If you run this test, you need to clean up manually afterwards
+test.skip("Create a new invoice", async () => {
+  const contactId = 123;
+  const contactPersonId = 123;
   const invoiceNumber = `TEST-${new Date().toISOString()}`;
-  const { objects: contacts } = await sevDeskClient.getContacts();
 
   const {
     objects: { invoice },
@@ -64,11 +67,11 @@ test("Create a new invoice", async () => {
       objectName: "Invoice",
       invoiceNumber,
       contact: {
-        id: contacts[0].id,
+        id: contactId,
         objectName: "Contact",
       },
       contactPerson: {
-        id: env.CONTACT_PERSON_ID,
+        id: contactPersonId,
         objectName: "SevUser",
       },
       invoiceDate: "01.01.2022",
@@ -114,10 +117,6 @@ test("Create a new invoice", async () => {
         id: null,
         objectName: "InvoicePos",
         mapAll: true,
-        // part: {
-        //   id: 0,
-        //   objectName: 'Part',
-        // },
         quantity: 1,
         price: 100,
         name: "Dragonglass",
@@ -165,7 +164,8 @@ test("Get documents", async () => {
   documents.forEach(assertIsDocument);
 });
 
-// If you run this test, you need to remove the document manually afterwards
+// Manual test
+// If you run this test, you need to clean up manually afterwards
 test.skip("Add document", async () => {
   const {
     objects: [document],
