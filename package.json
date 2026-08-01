@@ -40,7 +40,7 @@
     "test:jsr": "jsr publish --dry-run --allow-dirty",
     "vitest": "vitest",
     "build": "run-s build:*",
-    "build:clear": "rimraf dist",
+    "build:clear": "node --eval \"fs.rmSync('dist', {recursive: true, force: true})\"",
     "build:tsc": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
     "release": "semantic-release"
