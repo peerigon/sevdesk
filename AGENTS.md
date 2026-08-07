@@ -46,7 +46,7 @@ This project uses npm scripts for all development tasks:
 
 ## Commit Messages
 
-Use [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages (e.g. `feat: ...`, `fix: ...`, `chore: ...`).
+Use [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages (e.g. `feat: ...`, `fix: ...`, `chore: ...`). This is enforced by commitlint, both via a `commit-msg` git hook (`.husky/commit-msg`) and via `npm run test:commits` (config in `commitlint.config.js`), which catches commits made with `--no-verify`.
 
 ## Template as a git remote
 
