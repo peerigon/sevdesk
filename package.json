@@ -32,6 +32,7 @@
   "scripts": {
     "prepare": "husky",
     "test": "run-p test:*",
+    "test:commits": "commitlint --from origin/main --to HEAD --verbose",
     "test:format": "oxfmt --check .",
     "test:lint": "eslint --max-warnings 0 --cache .",
     "test:types": "tsc",
@@ -49,6 +50,8 @@
     "env-var": "^7.5.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "@djankies/vitest-mcp": "0.5.1",
     "@eslint/mcp": "0.3.9",
     "@peerigon/configs": "^21.2.0",
