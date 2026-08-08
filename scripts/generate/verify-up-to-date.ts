@@ -20,6 +20,9 @@ const workDir = mkdtempSync(join(tmpdir(), "sevdesk-generate-"));
 try {
   const { moduleNames } = generate(workDir);
 
+  // Twice, mirroring `generate:format`: oxfmt's JSDoc reflow needs a second pass
+  // to reach a fixed point, and this has to match the committed bytes exactly.
+  execFileSync("npx", ["oxfmt", "--write", workDir], { stdio: "pipe" });
   execFileSync("npx", ["oxfmt", "--write", workDir], { stdio: "pipe" });
 
   const problems: Array<string> = [];

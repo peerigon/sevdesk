@@ -78,7 +78,7 @@
     "generate": "run-s generate:*",
     "generate:types": "openapi-typescript openapi/openapi.yaml --output src/generated/api.ts",
     "generate:modules": "node scripts/generate/main.ts",
-    "generate:format": "oxfmt --write src/generated package.json jsr.json",
+    "generate:format": "oxfmt --write . && oxfmt --write .",
     "test:generated": "node scripts/generate/verify-up-to-date.ts",
     "spec:update": "node scripts/fetch-spec.ts"
   },
