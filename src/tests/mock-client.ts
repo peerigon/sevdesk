@@ -4,7 +4,7 @@ export type FetchCall = {
   url: string;
   method: string;
   headers: Record<string, string>;
-  body: string | undefined;
+  body: string | FormData | undefined;
 };
 
 export type MockResponse = {
@@ -39,8 +39,8 @@ const toUrl = (input: FetchInput): string => {
  * A client whose `fetch` replays the given responses in order and records every call, so tests can
  * assert on the request without touching the network.
  *
- * The last response is reused once the queue runs dry, which keeps pagination tests from having to
- * pad the queue.
+ * The queue is not reused once dry — a full last page would otherwise make `.pages()` loop forever.
+ * Pad the queue (or end with a short/empty page) when a test makes multiple requests.
  */
 export const createTestClient = (
   responses: Array<MockResponse> = [{}],
@@ -57,14 +57,21 @@ export const createTestClient = (
         url: toUrl(input),
         method: init?.method ?? "GET",
         headers: (init?.headers ?? {}) as Record<string, string>,
-        body: typeof init?.body === "string" ? init.body : undefined,
+        body:
+          typeof init?.body === "string" || init?.body instanceof FormData ? init.body : undefined,
       });
 
-      const response = responses[Math.min(index, responses.length - 1)];
+      const response = responses[index];
+
+      if (response === undefined) {
+        throw new Error(
+          `createTestClient: no mock response left after ${String(responses.length)} call(s)`,
+        );
+      }
 
       index += 1;
 
-      return Promise.resolve(toResponse(response ?? {}));
+      return Promise.resolve(toResponse(response));
     },
   });
 

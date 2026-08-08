@@ -20,7 +20,8 @@ import { createReadOnlyClient } from "./read-only-client.ts";
  * These run against a production account, so two rules hold throughout:
  *
  * 1. **Read-only.** Every request goes through {@link createReadOnlyClient}, which blocks any non-GET
- *    method before it is sent. No test may create, update or delete anything.
+ *    method and the GET endpoints that still mutate (exports, send-by, enshrine flags) before the
+ *    request is sent. No test may create, update or delete anything.
  * 2. **No assertions on private data.** Assertions cover structure only — `objectName`, types, array
  *    shapes, HTTP status. Never a customer name, an amount, or an ID's value. Nothing from a
  *    response body is logged.

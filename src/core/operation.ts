@@ -11,8 +11,19 @@ import { paginate } from "./pagination.ts";
 /** Every `operationId` in the sevDesk OpenAPI spec. */
 export type OperationId = keyof operations;
 
-/** A value that can be serialized into a query string. */
-export type QueryValue = string | number | boolean | Array<string | number> | undefined;
+/**
+ * A value that can be serialized into a query string.
+ *
+ * Nested objects become bracket keys (`sevQuery[modelName]=Invoice`), matching how sevDesk
+ * documents nested query params. Arrays stay comma-joined.
+ */
+export type QueryValue =
+  | string
+  | number
+  | boolean
+  | Array<string | number>
+  | { readonly [key: string]: QueryValue }
+  | undefined;
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -47,7 +58,11 @@ export type BodyOf<Id extends OperationId> =
     ? never
     : DeclaredBody<Id> extends { content: { "application/json": infer Body } }
       ? Body
-      : never;
+      : // Spec uses the non-standard `form-data` media type for uploads (e.g. voucherUploadFile).
+        // Consumers pass a `FormData` instance; fetch sets the multipart boundary itself.
+        DeclaredBody<Id> extends { content: { "form-data": unknown } }
+        ? FormData
+        : never;
 
 /** The body of the operation's success response (2xx), as declared by the spec. */
 export type ResponseOf<Id extends OperationId, Responses = operations[Id]["responses"]> =
@@ -143,17 +158,34 @@ export type OperationConfig = {
   paginated?: boolean;
 };
 
-/** Serializes query params, dropping `undefined` and comma-joining arrays. */
+const appendQueryValue = (searchParams: URLSearchParams, key: string, value: QueryValue): void => {
+  if (value === undefined) {
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    // sevDesk expects comma-separated lists, e.g. `embed=category,parent`.
+    searchParams.append(key, value.join(","));
+    return;
+  }
+
+  if (typeof value === "object") {
+    for (const [nestedKey, nestedValue] of Object.entries(value)) {
+      appendQueryValue(searchParams, `${key}[${nestedKey}]`, nestedValue);
+    }
+
+    return;
+  }
+
+  searchParams.append(key, String(value));
+};
+
+/** Serializes query params, dropping `undefined`, flattening objects, and comma-joining arrays. */
 export const buildSearchParams = (query: Record<string, QueryValue> = {}): URLSearchParams => {
   const searchParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(query)) {
-    if (value === undefined) {
-      continue;
-    }
-
-    // sevDesk expects comma-separated lists, e.g. `embed=category,parent`.
-    searchParams.append(key, Array.isArray(value) ? value.join(",") : String(value));
+    appendQueryValue(searchParams, key, value);
   }
 
   searchParams.sort();
@@ -221,14 +253,23 @@ const send = async (
   const requestUrl = url.toString();
   const context = { operationId, method: config.method, url: requestUrl };
 
+  const isFormData = typeof FormData !== "undefined" && args.body instanceof FormData;
   let response: Response;
 
   try {
     response = await client.fetch(requestUrl, {
       method: config.method,
       signal: args.signal,
-      headers: hasBody ? { ...client.headers, "Content-Type": "application/json" } : client.headers,
-      body: hasBody ? JSON.stringify(args.body) : undefined,
+      // FormData must not get a Content-Type — fetch adds the multipart boundary.
+      headers:
+        hasBody && !isFormData
+          ? { ...client.headers, "Content-Type": "application/json" }
+          : client.headers,
+      body: hasBody
+        ? isFormData
+          ? (args.body as FormData)
+          : JSON.stringify(args.body)
+        : undefined,
     });
   } catch (error) {
     throw new NetworkError({

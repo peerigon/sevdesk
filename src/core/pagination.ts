@@ -26,7 +26,9 @@ export async function* paginate<PageType extends Page>(
   fetchPage: (query: Record<string, QueryValue>) => Promise<PageType>,
   query: Record<string, QueryValue> = {},
 ): AsyncGenerator<PageType, void, undefined> {
-  const limit = typeof query["limit"] === "number" ? query["limit"] : defaultPageSize;
+  // Non-positive limits would never satisfy `received < limit` and loop forever.
+  const limit =
+    typeof query["limit"] === "number" && query["limit"] > 0 ? query["limit"] : defaultPageSize;
   let offset = typeof query["offset"] === "number" ? query["offset"] : 0;
 
   while (true) {

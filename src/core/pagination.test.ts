@@ -60,6 +60,14 @@ describe("paginate", () => {
     expect(fetchPage).toHaveBeenCalledWith({ limit: defaultPageSize, offset: 0 });
   });
 
+  it("ignores non-positive limits so pagination cannot loop forever", async () => {
+    const fetchPage = vi.fn().mockResolvedValue(objectsPage(0));
+
+    await collect(paginate(fetchPage, { limit: 0 }));
+
+    expect(fetchPage).toHaveBeenCalledWith({ limit: defaultPageSize, offset: 0 });
+  });
+
   it("starts at the given offset", async () => {
     const fetchPage = vi.fn().mockResolvedValue(objectsPage(0));
 

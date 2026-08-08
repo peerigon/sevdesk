@@ -2,7 +2,9 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 
 import type { components } from "../generated/api.ts";
 import { createContact, getContactById, getContacts } from "../generated/contact.ts";
+import { exportInvoice } from "../generated/export.ts";
 import { getInvoices } from "../generated/invoice.ts";
+import { voucherUploadFile } from "../generated/voucher.ts";
 import { createTestClient, objectsPage } from "./mock-client.ts";
 
 /**
@@ -65,6 +67,16 @@ describe("generated operation modules", () => {
       expectTypeOf(createContact)
         .parameter(1)
         .toExtend<{ body: components["schemas"]["Model_Contact"] }>();
+    });
+
+    it("types form-data uploads as FormData", () => {
+      expectTypeOf(voucherUploadFile).parameter(1).toExtend<{ body: FormData }>();
+    });
+
+    it("accepts nested sevQuery objects on export endpoints", () => {
+      expectTypeOf<{
+        sevQuery: { modelName: "Invoice"; objectName: "SevQuery"; limit: 10 };
+      }>().toExtend<NonNullable<Parameters<typeof exportInvoice>[1]>["query"]>();
     });
 
     it("checks declared query params but still accepts undeclared ones", () => {

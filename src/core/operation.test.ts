@@ -44,6 +44,21 @@ describe("buildSearchParams", () => {
     );
   });
 
+  it("flattens nested objects with bracket keys, as sevDesk documents for sevQuery", () => {
+    expect(
+      buildSearchParams({
+        download: true,
+        sevQuery: {
+          objectName: "SevQuery",
+          modelName: "Invoice",
+          filter: { invoiceType: ["Re", "SR"], contact: { id: 1, objectName: "Contact" } },
+        },
+      }).toString(),
+    ).toBe(
+      "download=true&sevQuery%5Bfilter%5D%5Bcontact%5D%5Bid%5D=1&sevQuery%5Bfilter%5D%5Bcontact%5D%5BobjectName%5D=Contact&sevQuery%5Bfilter%5D%5BinvoiceType%5D=Re%2CSR&sevQuery%5BmodelName%5D=Invoice&sevQuery%5BobjectName%5D=SevQuery",
+    );
+  });
+
   it("drops undefined values", () => {
     expect(buildSearchParams({ limit: undefined, offset: 0 }).toString()).toBe("offset=0");
   });
@@ -123,6 +138,24 @@ describe("defineOperation", () => {
       });
     });
 
+    it("sends FormData without forcing a JSON Content-Type", async () => {
+      const voucherUploadFile = defineOperation("voucherUploadFile", {
+        method: "POST",
+        path: "/Voucher/Factory/uploadTempFile",
+      });
+      const formData = new FormData();
+
+      formData.append("file", new Blob(["%PDF-1.4"]), "receipt.pdf");
+
+      const { client, calls } = createTestClient([{ status: 201, body: { objects: {} } }]);
+
+      await voucherUploadFile(client, { body: formData });
+
+      expect(calls[0]?.method).toBe("POST");
+      expect(calls[0]?.headers).not.toHaveProperty("Content-Type");
+      expect(calls[0]?.body).toBe(formData);
+    });
+
     it("omits the body for requests without one", async () => {
       const { client, calls } = createTestClient();
 
@@ -163,7 +196,10 @@ describe("defineOperation", () => {
     });
 
     it("makes every status error catchable as SevDeskHttpError and SevDeskError", async () => {
-      const { client } = createTestClient([{ status: 401, body: {} }]);
+      const { client } = createTestClient([
+        { status: 401, body: {} },
+        { status: 401, body: {} },
+      ]);
 
       await expect(getContacts(client)).rejects.toBeInstanceOf(SevDeskHttpError);
       await expect(getContacts(client)).rejects.toBeInstanceOf(SevDeskError);

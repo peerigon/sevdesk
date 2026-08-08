@@ -86,7 +86,7 @@ export const getContacts: PaginatedOperation<"getContacts"> = defineOperation("g
 - `src/main.ts` must **never** import anything from `src/generated/` except types.
 - Generated modules must import from `src/core/`, never from each other.
 
-**Query params are intentionally open.** `QueryOf<Id>` is the spec's declared params intersected with `Record<string, QueryValue>`. sevDesk documents most filter params only in prose, so rejecting unknown keys would make the SDK unusable. Declared params are still fully checked.
+**Query params are intentionally open.** `QueryOf<Id>` is the spec's declared params intersected with `Record<string, QueryValue>`. sevDesk documents most filter params only in prose, so rejecting unknown keys would make the SDK unusable. Declared params are still fully checked. Nested objects (e.g. `sevQuery`) are flattened to bracket keys; form-data uploads take a `FormData` body.
 
 ## Making changes
 
