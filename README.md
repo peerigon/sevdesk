@@ -1,61 +1,173 @@
-# template-public-package
+# @peerigon/sevdesk
 
-**🚀 Boilerplate template to kick start new public packages at Peerigon**
+💵 **Unofficial TypeScript SDK for [sevDesk](https://sevdesk.de)** — generated from sevDesk's own OpenAPI spec, so every one of the 154 endpoints is typed, not just the popular ones.
 
-[![Version on NPM](https://img.shields.io/npm/v/@peerigon/template-public-package?style=for-the-badge)](https://www.npmjs.com/package/@peerigon/template-public-package)
-[![Version on JSR](https://img.shields.io/jsr/v/@peerigon/template-public-package?style=for-the-badge)](https://jsr.io/@peerigon/template-public-package)
-[![Semantically released](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=for-the-badge)](https://github.com/semantic-release/semantic-release)
-[![Monthly downloads on NPM](https://img.shields.io/npm/dm/@peerigon/template-public-package?style=for-the-badge)](https://www.npmjs.com/package/@peerigon/template-public-package)<br>
-[![License](https://img.shields.io/npm/l/@peerigon/template-public-package?style=for-the-badge)](./LICENSE)
-
-## Features
-
-- 🚀 Zero dependencies
-- 📱 Works in all modern browsers
-- 🎯 Accurate calculations
-- 📦 Tree-shakeable ES modules
-- 💪 TypeScript support
-- ⚡ Lightweight (~3KB gzipped)
+- **Fully typed** requests and responses, including query params — while still accepting the many filter params sevDesk documents only in prose
+- **Modular**: import two endpoints, ship two endpoints
+- **Typed errors** grouped into a catchable domain
+- **Pagination** you can drive yourself, or walk with an async generator
 
 ## Installation
 
 ```sh
-npm install @peerigon/template-public-package  --save
+npm install @peerigon/sevdesk
 ```
+
+Requires Node.js 20+ or any runtime with a global `fetch`.
 
 ## Usage
 
-### Adding numbers
+```ts
+import { createClient } from "@peerigon/sevdesk";
+import { getContacts } from "@peerigon/sevdesk/contact";
 
-```javascript
-import { add } from "@peerigon/template-public-package";
+const apiToken = process.env.SEVDESK_API_TOKEN;
 
-add(1, 2); // 3
+if (!apiToken) throw new Error("SEVDESK_API_TOKEN is not set");
+
+const client = createClient({ apiToken });
+
+const { objects } = await getContacts(client, { query: { limit: 50 } });
+
+for (const contact of objects ?? []) {
+  console.log(contact.name);
+}
 ```
 
-## API Reference
+Operations are standalone functions taking the client as their first argument. Nothing is bundled that you didn't import — `@peerigon/sevdesk/contact` pulls in the contact endpoints and the shared runtime, and nothing else.
 
-### `add()`
+Find your API token in the sevDesk web app under **User → Settings → API**.
 
-Adds two numbers.
+### Query parameters
 
-```javascript
-import { add } from "@peerigon/template-public-package";
+Params the spec declares are checked; anything else is passed through, because most of sevDesk's filtering is documented in prose rather than in the spec.
 
-add(1, 2); // 3
+```ts
+await getContacts(client, {
+  query: {
+    depth: "1", // declared: only "0" | "1" compiles
+    limit: 100,
+    embed: ["category", "parent"], // arrays are comma-joined
+    "contact.category[id]": 3, // undeclared, still allowed
+  },
+});
 ```
 
-**Parameters**:
+### Pagination
 
-- `a` (number): The first number
-- `b` (number): The second number
+`limit`, `offset` and `countAll` are accepted on every collection endpoint:
 
-**Returns**: `number` - Result of the addition
+```ts
+const page = await getContacts(client, {
+  query: { limit: 50, offset: 100, countAll: true },
+});
+
+page.total; // present when countAll is true
+```
+
+To walk everything, use `.pages()` — an async generator that yields one response per page:
+
+```ts
+for await (const page of getContacts.pages(client, { query: { limit: 200 } })) {
+  for (const contact of page.objects ?? []) {
+    console.log(contact.name);
+  }
+}
+```
+
+It stops on the first short page. `.pages()` exists only on endpoints that return collections, so reaching for it on a single-resource endpoint is a type error rather than an infinite loop.
+
+### Errors
+
+Errors are defined with [`@peerigon/typescript-toolkit/errors`](https://github.com/peerigon/typescript-toolkit/blob/main/src/errors/README.md): namespaced, serializable, and catchable by domain.
+
+```ts
+import { NotFound, SevDeskError, SevDeskHttpError, Unauthorized } from "@peerigon/sevdesk";
+
+try {
+  await getContactById(client, { path: { contactId: 4711 } });
+} catch (error) {
+  if (error instanceof NotFound) {
+    // one specific error
+  } else if (error instanceof SevDeskHttpError) {
+    // any status error — 4xx or 5xx
+    console.error(error.context.httpStatus, error.context.sevDeskError?.message);
+  } else if (error instanceof SevDeskError) {
+    // anything this SDK throws, including NetworkError
+  }
+}
+```
+
+| Error              | When                                                     |
+| ------------------ | -------------------------------------------------------- |
+| `BadRequest`       | 400                                                      |
+| `Unauthorized`     | 401 — check your API token                               |
+| `Forbidden`        | 403                                                      |
+| `NotFound`         | 404                                                      |
+| `Conflict`         | 409                                                      |
+| `RateLimited`      | 429                                                      |
+| `ServerError`      | 5xx                                                      |
+| `UnexpectedStatus` | any other non-2xx status                                 |
+| `NetworkError`     | the request never completed (DNS, reset, timeout, abort) |
+| `InvalidResponse`  | a 2xx response whose body wasn't JSON                    |
+
+Every error carries `context` with `operationId`, `method`, `url` and — for status errors — `httpStatus` plus sevDesk's own error payload. Errors survive `JSON.stringify` and can be restored with `errors.parse()` without losing their class.
+
+### Non-JSON endpoints
+
+The `Export/*` endpoints return CSV or ZIP even though the spec declares them as JSON. Use `.raw()` to get the `Response`:
+
+```ts
+import { exportInvoice } from "@peerigon/sevdesk/export";
+
+// GET /Export/invoiceCsv — returns CSV, not JSON
+const response = await exportInvoice.raw(client);
+const csv = await response.text();
+```
+
+`.raw()` still throws on a non-2xx status.
+
+### Types
+
+Every model from the spec is available:
+
+```ts
+import type { components } from "@peerigon/sevdesk/types";
+
+type Contact = components["schemas"]["Model_ContactResponse"];
+```
+
+## Modules
+
+One module per sevDesk API tag:
+
+`accounting-contact` · `basics` · `check-account` · `check-account-transaction` · `communication-way` · `contact` · `contact-address` · `contact-field` · `credit-note` · `credit-note-pos` · `export` · `invoice` · `invoice-pos` · `layout` · `order` · `order-pos` · `part` · `private-transaction-rule` · `report` · `tag` · `voucher` · `voucher-pos`
+
+## Migrating from v2
+
+v3 is a rewrite. The `SevDeskClient` class is gone, along with its hand-picked subset of endpoints — everything sevDesk documents is now available.
+
+| v2                              | v3                                                    |
+| ------------------------------- | ----------------------------------------------------- |
+| `new SevDeskClient({ apiKey })` | `createClient({ apiToken })`                          |
+| `client.getInvoices(params)`    | `getInvoices(client, { query: params })`              |
+| `client.getInvoice({ id })`     | `getInvoiceById(client, { path: { invoiceId: id } })` |
+| `SevDeskUrls`                   | removed                                               |
+| `UnknownApiError`               | `SevDeskError` and its subclasses                     |
+| manual `limit`/`offset` loops   | `.pages()`                                            |
+
+Responses keep sevDesk's `{ objects: [...] }` envelope, as in v2.
+
+## Contributing
+
+The endpoint modules are generated. See [AGENTS.md](./AGENTS.md) for how to update the spec, change the generator, and what counts as a breaking change.
+
+```sh
+npm install
+npm run generate   # rebuild src/generated/ from openapi/openapi.yaml
+npm test
+```
 
 ## License
 
-MIT
-
-## Sponsors
-
-[<img src="https://assets.peerigon.com/peerigon/logo/peerigon-logo-flat-spinat.png" width="150" />](https://peerigon.com)
+[MIT](./LICENSE)

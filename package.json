@@ -1,17 +1,25 @@
 {
-  "name": "@peerigon/template-public-package",
+  "name": "@peerigon/sevdesk",
   "version": "0.0.0-semantically-released",
-  "description": "Boilerplate template to kick start new public packages at Peerigon",
-  "keywords": [],
-  "homepage": "https://github.com/peerigon/template-public-package#readme",
+  "description": "💵 Unofficial JavaScript SDK for sevdesk.com",
+  "keywords": [
+    "accounting",
+    "api",
+    "client",
+    "invoice",
+    "sdk",
+    "sevdesk",
+    "typescript"
+  ],
+  "homepage": "https://github.com/peerigon/sevdesk-next#readme",
   "bugs": {
-    "url": "https://github.com/peerigon/template-public-package/issues"
+    "url": "https://github.com/peerigon/sevdesk-next/issues"
   },
   "license": "MIT",
   "author": "Peerigon GmbH <hello@peerigon.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/peerigon/template-public-package.git"
+    "url": "git+https://github.com/peerigon/sevdesk-next.git"
   },
   "files": [
     "dist",
@@ -23,7 +31,29 @@
   "main": "./dist/main.js",
   "exports": {
     ".": "./dist/main.js",
-    "./add": "./dist/add.js"
+    "./types": "./dist/generated/api.js",
+    "./accounting-contact": "./dist/generated/accounting-contact.js",
+    "./basics": "./dist/generated/basics.js",
+    "./check-account": "./dist/generated/check-account.js",
+    "./check-account-transaction": "./dist/generated/check-account-transaction.js",
+    "./communication-way": "./dist/generated/communication-way.js",
+    "./contact": "./dist/generated/contact.js",
+    "./contact-address": "./dist/generated/contact-address.js",
+    "./contact-field": "./dist/generated/contact-field.js",
+    "./credit-note": "./dist/generated/credit-note.js",
+    "./credit-note-pos": "./dist/generated/credit-note-pos.js",
+    "./export": "./dist/generated/export.js",
+    "./invoice": "./dist/generated/invoice.js",
+    "./invoice-pos": "./dist/generated/invoice-pos.js",
+    "./layout": "./dist/generated/layout.js",
+    "./order": "./dist/generated/order.js",
+    "./order-pos": "./dist/generated/order-pos.js",
+    "./part": "./dist/generated/part.js",
+    "./private-transaction-rule": "./dist/generated/private-transaction-rule.js",
+    "./report": "./dist/generated/report.js",
+    "./tag": "./dist/generated/tag.js",
+    "./voucher": "./dist/generated/voucher.js",
+    "./voucher-pos": "./dist/generated/voucher-pos.js"
   },
   "publishConfig": {
     "access": "public",
@@ -44,10 +74,16 @@
     "build:clear": "node --eval \"fs.rmSync('dist', {recursive: true, force: true})\"",
     "build:tsc": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "generate": "run-s generate:*",
+    "generate:types": "openapi-typescript openapi/openapi.yaml --output src/generated/api.ts",
+    "generate:modules": "node scripts/generate/main.ts",
+    "generate:format": "oxfmt --write src/generated package.json jsr.json",
+    "test:generated": "node scripts/generate/verify-up-to-date.ts",
+    "spec:update": "node scripts/fetch-spec.ts"
   },
   "dependencies": {
-    "env-var": "^7.5.0"
+    "@peerigon/typescript-toolkit": "^5.0.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",
@@ -63,13 +99,20 @@
     "jsr": "^0.14.3",
     "lint-staged": "^17.1.1",
     "npm-run-all2": "^9.0.2",
+    "openapi-typescript": "^7.9.1",
     "oxfmt": "^0.59.0",
     "pin-github-action": "^3.5.1",
     "secretlint": "^13.0.4",
     "semantic-release": "^25.0.3",
     "ts-lsp-mcp": "0.1.3",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "yaml": "^2.8.1"
+  },
+  "overrides": {
+    "openapi-typescript": {
+      "typescript": "$typescript"
+    }
   },
   "devEngines": {
     "runtime": {

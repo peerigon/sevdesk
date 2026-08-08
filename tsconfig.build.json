@@ -1,5 +1,13 @@
 {
   "extends": ["./tsconfig.json", "@peerigon/configs/typescript/lib"],
+  "compilerOptions": {
+    // The SDK uses web-standard globals (fetch, Response, URL, AbortSignal).
+    // The root tsconfig picks these up from @types/node automatically, but this
+    // project's narrower `include` doesn't, so ask for them explicitly.
+    // They only ever appear as global type names in the emitted .d.ts, so
+    // consumers resolve them from their own environment — browser or Node.
+    "types": ["node"]
+  },
   "include": ["src"],
   "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/tests/**/*"]
 }
