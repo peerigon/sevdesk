@@ -272,11 +272,10 @@ export const defineOperation = <const Id extends OperationId, const Config exten
     const { response, context } = await send(client, operationId, config, args);
     const body = await response.text();
 
-    if (body === "") {
-      return undefined;
-    }
-
-    if (!jsonContentType.test(response.headers.get("content-type") ?? "")) {
+    // Every operation in the spec declares `application/json` for its 2xx response, so an empty
+    // body is a response we cannot honour the return type with. Returning `undefined` here would
+    // make the signature lie; `.raw()` is the way to handle a body we can't parse.
+    if (body === "" || !jsonContentType.test(response.headers.get("content-type") ?? "")) {
       throw new InvalidResponse({
         ...context,
         httpStatus: response.status,

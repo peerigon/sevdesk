@@ -220,10 +220,12 @@ describe("defineOperation", () => {
       await expect(getContacts(client)).rejects.toBeInstanceOf(InvalidResponse);
     });
 
-    it("returns undefined for an empty body", async () => {
+    it("throws InvalidResponse for an empty body", async () => {
+      // Every operation declares a JSON 2xx response, so an empty body cannot satisfy the
+      // declared return type — returning undefined would make the signature lie.
       const { client } = createTestClient([{ body: "" }]);
 
-      await expect(getContacts(client)).resolves.toBeUndefined();
+      await expect(getContacts(client)).rejects.toBeInstanceOf(InvalidResponse);
     });
   });
 
