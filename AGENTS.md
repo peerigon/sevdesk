@@ -127,6 +127,7 @@ The spec's casing is inconsistent (`getContacts` beside `UpdateCommunicationWay`
 - **`src/generated/api.ts` is excluded from ESLint** (`eslint.config.js`). It is machine output shaped by sevDesk's spec and is already checked by `tsc`. The tag modules beside it _are_ linted and must stay clean.
 - **JSR rejects "slow types".** Every public symbol needs an explicit type annotation — which is why generated operations are emitted as `export const x: Operation<"x"> = …` and the error classes in `src/core/errors.ts` spell out their constructor types. `npm run test:jsr` catches regressions.
 - **`openapi-typescript` declares a `typescript@^5` peer** while this repo is on TypeScript 6. `package.json` has an `overrides` entry for it; `.npmrc` keeps `strict-peer-deps` meaningful for everything else.
+- **`generate:format` runs oxfmt twice on purpose.** oxfmt's JSDoc reflow needs a second pass to reach a fixed point on the generated `api.ts`; with one pass, `npm run generate` leaves the tree in a state `npm run test:format` rejects. `verify-up-to-date.ts` mirrors this.
 - **The exports maps are generated** into both `package.json` and `jsr.json` (neither registry supports the wildcards we'd need). Don't hand-edit them; run `npm run generate`.
 
 ## Commit Messages
