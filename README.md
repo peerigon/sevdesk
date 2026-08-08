@@ -168,6 +168,9 @@ npm run generate   # rebuild src/generated/ from openapi/openapi.yaml
 npm test
 ```
 
+`npm test` never touches the network. There is also a small read-only smoke suite that runs against
+the live API — copy `.env.example` to `.env`, add a `SEVDESK_API_TOKEN`, and run `npm run smoke`.
+
 ## License
 
 [MIT](./LICENSE)

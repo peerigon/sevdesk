@@ -34,6 +34,7 @@ This project uses npm scripts for all development tasks:
 - **Format check**: `npm run test:format` - Oxfmt format validation
 - **Regenerate**: `npm run generate` - Rebuild `src/generated/` and the `exports` maps from the committed spec
 - **Update the spec**: `npm run spec:update` - Refetch `openapi/openapi.yaml` from sevDesk
+- **Smoke tests**: `npm run smoke` - Run the live-API tests (needs `SEVDESK_API_TOKEN` in `.env`)
 
 **Important**: Use the typescript-lsp MCP (`getDiagnostics`, `getTypeAtPosition`, `getDefinition`, etc.) for type information
 **Important**: Use the vitest-server MCP to run individual tests.
@@ -127,7 +128,7 @@ The spec's casing is inconsistent (`getContacts` beside `UpdateCommunicationWay`
 - **`src/generated/api.ts` is excluded from ESLint** (`eslint.config.js`). It is machine output shaped by sevDesk's spec and is already checked by `tsc`. The tag modules beside it _are_ linted and must stay clean.
 - **JSR rejects "slow types".** Every public symbol needs an explicit type annotation — which is why generated operations are emitted as `export const x: Operation<"x"> = …` and the error classes in `src/core/errors.ts` spell out their constructor types. `npm run test:jsr` catches regressions.
 - **`openapi-typescript` declares a `typescript@^5` peer** while this repo is on TypeScript 6. `package.json` has an `overrides` entry for it; `.npmrc` keeps `strict-peer-deps` meaningful for everything else.
-- **`.npmrc` sets `min-release-age=7`, and `@peerigon/typescript-toolkit@5.0.1` is younger than that.** It is in the lockfile because it was installed once with `npm install --min-release-age=0` (5.x is the first release with the `errors` module this SDK is built on). `npm ci` is unaffected — it installs from the lockfile — but regenerating the lockfile before ~2026-08-15 fails with a bare `ETARGET ... with a date before` error. Re-run with `--min-release-age=0` if you hit it, or wait out the window.
+- **The smoke tests run against a production sevDesk account.** They are read-only by mechanism, not by convention: `src/tests/read-only-client.ts` blocks any non-GET request before it is sent, and one test asserts that guard still works. Two rules when touching `src/tests/smoke.test.ts` — never call a mutating operation, and never assert on or log private data (assert `objectName`, types and HTTP status; never a name, an amount, or an id's value). They are excluded from `npm test`, which must never need a token or the network; run them with `npm run smoke`. The script is deliberately _not_ named `test:smoke`, because `npm test` runs `run-p test:*`.
 - **`generate:format` runs oxfmt twice on purpose.** oxfmt's JSDoc reflow needs a second pass to reach a fixed point on the generated `api.ts`; with one pass, `npm run generate` leaves the tree in a state `npm run test:format` rejects. `verify-up-to-date.ts` mirrors this.
 - **The exports maps are generated** into both `package.json` and `jsr.json` (neither registry supports the wildcards we'd need). Don't hand-edit them; run `npm run generate`.
 

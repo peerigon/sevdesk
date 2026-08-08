@@ -80,7 +80,8 @@
     "generate:modules": "node scripts/generate/main.ts",
     "generate:format": "oxfmt --write . && oxfmt --write .",
     "test:generated": "node scripts/generate/verify-up-to-date.ts",
-    "spec:update": "node scripts/fetch-spec.ts"
+    "spec:update": "node scripts/fetch-spec.ts",
+    "smoke": "vitest --run --config vitest.smoke.config.ts"
   },
   "dependencies": {
     "@peerigon/typescript-toolkit": "^5.0.1"
