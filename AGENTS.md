@@ -139,7 +139,18 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) for all commit 
 
 ## Releasing
 
-Releases are made by semantic-release from commit messages; the `version` field in `package.json` and `jsr.json` is a placeholder and must not be edited. The package continues the version line of the previous `@peerigon/sevdesk` (last published: 2.1.0), so **v3.0.0 is the first release of this rewrite**.
+Releases are made by semantic-release from commit messages; the `version` field in `package.json` and `jsr.json` is a placeholder and must not be edited.
+
+This package continues the version line of the previous `@peerigon/sevdesk` (last published: **2.1.0**), but that history lives in a different repository, so this repo has no matching tag. semantic-release derives the version from git tags — **without a seed tag the first release would be 1.0.0, published over the existing 2.x line.** Seed it once, on the last template commit before the rewrite:
+
+```bash
+git tag v2.1.0 3f5d32c
+git push origin v2.1.0
+```
+
+Verified with `@semantic-release/commit-analyzer`: with that tag in place, the rewrite's `BREAKING CHANGE:` footer yields a `major` bump, so the first release is **3.0.0**, and the release notes cover only the rewrite rather than the whole template history.
+
+Note that a `semantic-release --dry-run` prunes local-only tags, so re-create the tag if you run one before pushing it.
 
 ## Template as a git remote
 
