@@ -34,7 +34,7 @@ This project uses npm scripts for all development tasks:
 - **Format check**: `npm run test:format` - Oxfmt format validation
 - **Regenerate**: `npm run generate` - Rebuild `src/generated/` and the `exports` maps from the committed spec
 - **Update the spec**: `npm run spec:update` - Refetch `openapi/openapi.yaml` from sevDesk
-- **Smoke tests**: `npm run smoke` - Run the live-API tests (needs `SEVDESK_API_TOKEN` in `.env`)
+- **Smoke tests**: `npm run smoke` - Run the live-API tests (needs `SEVDESK_API_TOKEN`, see [The sevDesk API token](#the-sevdesk-api-token))
 
 **Important**: Use the typescript-lsp MCP (`getDiagnostics`, `getTypeAtPosition`, `getDefinition`, etc.) for type information
 **Important**: Use the vitest-server MCP to run individual tests.
@@ -131,6 +131,62 @@ The spec's casing is inconsistent (`getContacts` beside `UpdateCommunicationWay`
 - **The smoke tests run against a production sevDesk account.** They are read-only by mechanism, not by convention: `src/tests/read-only-client.ts` blocks any non-GET request before it is sent, and one test asserts that guard still works. Two rules when touching `src/tests/smoke.test.ts` — never call a mutating operation, and never assert on or log private data (assert `objectName`, types and HTTP status; never a name, an amount, or an id's value). They are excluded from `npm test`, which must never need a token or the network; run them with `npm run smoke`. The script is deliberately _not_ named `test:smoke`, because `npm test` runs `run-p test:*`.
 - **`generate:format` runs oxfmt twice on purpose.** oxfmt's JSDoc reflow needs a second pass to reach a fixed point on the generated `api.ts`; with one pass, `npm run generate` leaves the tree in a state `npm run test:format` rejects. `verify-up-to-date.ts` mirrors this.
 - **The exports maps are generated** into both `package.json` and `jsr.json` (neither registry supports the wildcards we'd need). Don't hand-edit them; run `npm run generate`.
+
+## The sevDesk API token
+
+The smoke tests need a **production** sevDesk token. It is never committed, and never written to disk.
+
+### Locally — 1Password Environments
+
+The token comes from a 1Password Environment mounted as a local `.env` file
+([docs](https://www.1password.dev/environments/local-env-file)): 1Password app → your Environment →
+**Connect to** → **Local .env file** → point it at this repo → **Mount .env file**. Then
+`npm run smoke` works with no further setup.
+
+Things that follow from how the mount works, and that are easy to get wrong:
+
+- **`.env` is a named pipe, not a file.** Its contents are served on demand and never stored on
+  disk. `vite`'s `loadEnv` reads it like any dotenv file, so nothing in the code has to know.
+- **Only `vitest.smoke.config.ts` may read it.** Two separate things enforce that in
+  `vite.config.ts`, and both are needed:
+  - It does not call `loadEnv`, so the token never reaches `test.env` and therefore never reaches a
+    unit test's `process.env`.
+  - It sets `envDir` to the empty `config/no-dotenv/` directory. **Vite loads `.env` from `envDir`
+    by itself**, so dropping `loadEnv` alone does not stop the read — with the default `envDir`,
+    `npm test` pops a 1Password prompt every run, and blocks _forever_ when the pipe is mounted but
+    not being served (1Password locked, or authorization declined).
+
+  `src/tests/env-isolation.test.ts` fails if either is undone. Do not "restore" them.
+
+- **The `SEVDESK_` prefix on `loadEnv` is load-bearing**, not cosmetic: it stops any other variable
+  in the Environment from being lifted into the test process.
+- If a plain `.env` file already exists, delete it and commit that removal before mounting, or git
+  will fight the pipe.
+
+### In CI — `op run`
+
+`.github/workflows/smoke.yml` reads the _same_ Environment via the 1Password CLI, so there is one
+place to rotate the token:
+
+```yaml
+op run --environment "$OP_ENVIRONMENT_ID" -- npm run smoke
+```
+
+It needs two repository settings, both configured in GitHub:
+
+| Kind     | Name                       | What it is                                                    |
+| -------- | -------------------------- | ------------------------------------------------------------- |
+| Secret   | `OP_SERVICE_ACCOUNT_TOKEN` | 1Password service account with read access to the Environment |
+| Variable | `OP_ENVIRONMENT_ID`        | The Environment's id                                          |
+
+A preflight step fails with a readable message when either is missing. `op run --environment` needs
+a **beta** CLI build (pinned in the workflow); it is not in the stable release yet.
+
+**Keep smoke in its own workflow.** The sevDesk token is a production credential, and the point of
+the split is that it is never present in the `test-and-release` job — the one with `contents: write`
+and npm provenance. Do not merge the two. Smoke also does not run on `pull_request`: forked PRs get
+no secrets, and each run costs real API calls. It does not gate releases, so a sevDesk outage cannot
+block publishing.
 
 ## Commit Messages
 

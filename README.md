@@ -169,7 +169,9 @@ npm test
 ```
 
 `npm test` never touches the network. There is also a small read-only smoke suite that runs against
-the live API — copy `.env.example` to `.env`, add a `SEVDESK_API_TOKEN`, and run `npm run smoke`.
+the live API with `npm run smoke`; it needs a `SEVDESK_API_TOKEN`, which Peerigon developers get by
+mounting the shared 1Password Environment as `.env` (see [AGENTS.md](./AGENTS.md#the-sevdesk-api-token)).
+Otherwise, copy `.env.example` to `.env` and fill in your own token.
 
 ## License
 
