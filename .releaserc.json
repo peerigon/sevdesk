@@ -1,3 +1,0 @@
-{
-  "extends": "@peerigon/configs/semantic-release/cross-publish"
-}
