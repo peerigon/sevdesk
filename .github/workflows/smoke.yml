@@ -1,0 +1,83 @@
+name: 💨 Smoke test
+
+# Runs the read-only smoke tests against the live sevDesk API.
+#
+# This lives in its own workflow, separate from test-and-release, on purpose: the
+# sevDesk API token is a production credential, and keeping it here means it is
+# never present in the job that publishes the package (which needs write
+# permissions and an npm provenance token). The two never share a runner.
+#
+# Deliberately not triggered by `pull_request`: secrets are not available to
+# forked PRs, and every run costs real API calls against production books.
+
+on:
+  push:
+    branches:
+      - main
+  # Catches sevDesk changing their API underneath us between releases, which is
+  # the failure mode this SDK is most exposed to. Drop this block if the weekly
+  # production calls aren't wanted.
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  smoke:
+    name: 💨 Smoke test against the live sevDesk API
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+
+    concurrency:
+      # Never let two runs hit the production account at the same time.
+      group: ${{ github.workflow }}
+      cancel-in-progress: false
+
+    permissions:
+      # Read-only: this job only needs the source to run the tests.
+      contents: read
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: "package.json"
+
+      - name: 🗄 Cache node_modules
+        id: cache-node_modules
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: "**/node_modules"
+          key: node_modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: 🔍 Install dependencies
+        if: steps.cache-node_modules.outputs.cache-hit != 'true'
+        run: |
+          npm ci --prefer-offline --no-audit
+
+      # `op run --environment` reads the same 1Password Environment that serves
+      # the local `.env` file, so there is one place to rotate the token.
+      # It is only available in beta versions of the CLI, see
+      # https://developer.1password.com/docs/environments/read-environment-variables
+      - name: 🔐 Install 1Password CLI
+        uses: 1password/install-cli-action@a5215d3a7f75c1629216c465ea9ab3ab399c4b71 # v4.0.0
+        with:
+          version: 2.35.0-beta.01
+
+      - name: 💨 Run smoke tests
+        env:
+          # Grants read access to the 1Password Environment holding
+          # SEVDESK_API_TOKEN. This is the only step in the whole repository that
+          # can reach the sevDesk credential.
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          OP_ENVIRONMENT_ID: ${{ vars.OP_ENVIRONMENT_ID }}
+        # `op run` injects the Environment's variables into the child process
+        # only, and masks their values in the log output.
+        run: |
+          op run --environment "$OP_ENVIRONMENT_ID" -- npm run smoke

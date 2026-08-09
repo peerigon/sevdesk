@@ -16,37 +16,214 @@ When you make changes to the project that affect how AI agents should work with 
 
 **Important: Keep this file concise**. Only include information that is relevant for most or all development tasks. Omit specific implementation details that don't affect how agents interact with the codebase.
 
+## What this package is
+
+`@peerigon/sevdesk` is a TypeScript SDK for the [sevDesk API](https://api.sevdesk.de/), **generated from sevDesk's own OpenAPI spec**. Almost nothing about the endpoints is written by hand: 154 operations across 22 modules are emitted by a generator from a committed copy of the spec.
+
+The consequence that matters most: **adding or fixing an endpoint is never a code change in `src/generated/`.** It is a spec update, a generator change, or an override. See [Making changes](#making-changes).
+
 ## Development Commands
 
 This project uses npm scripts for all development tasks:
 
-- **Test all**: `npm test` - Runs all tests in parallel (format, lint, types, unit)
+- **Test all**: `npm test` - Runs all tests in parallel (format, lint, types, unit, generated, publishable, jsr, commits)
 - **Unit tests**: `npm run test:unit` - Run Vitest tests once
 - **Watch tests**: `npm run vitest` - Run Vitest in watch mode
 - **Lint**: `npm run test:lint` - ESLint with zero warnings allowed
 - **Type check**: `npm run test:types` - TypeScript compiler check
 - **Format check**: `npm run test:format` - Oxfmt format validation
+- **Regenerate**: `npm run generate` - Rebuild `src/generated/` and the `exports` maps from the committed spec
+- **Update the spec**: `npm run spec:update` - Refetch `openapi/openapi.yaml` from sevDesk
+- **Smoke tests**: `npm run smoke` - Run the live-API tests (needs `SEVDESK_API_TOKEN`, see [The sevDesk API token](#the-sevdesk-api-token))
 
 **Important**: Use the typescript-lsp MCP (`getDiagnostics`, `getTypeAtPosition`, `getDefinition`, etc.) for type information
 **Important**: Use the vitest-server MCP to run individual tests.
 **Important**: Use the eslint MCP to check for linting errors.
 
+`npm test` includes `test:publishable`, which needs `dist/` — run `npm run build` first if it fails on missing files.
+
 ## Project Structure
 
-- **Source**: `src/` - All source code and tests
+```
+openapi/openapi.yaml     Committed snapshot of sevDesk's spec. The single source of truth.
+scripts/
+  fetch-spec.ts          `npm run spec:update`
+  generate/              The generator. Hand-written.
+    naming.ts            Spec names → public API names. Changing this is a BREAKING CHANGE.
+    operations.ts        Reads the spec; decides what paginates.
+    overrides.ts         Hand-maintained corrections to what the generator infers.
+    emit.ts              Renders module source and the `exports` maps.
+    main.ts              Entry point for `npm run generate:modules`.
+    verify-up-to-date.ts `npm run test:generated`.
+src/
+  main.ts                Public entry: client, errors, types, helpers. No endpoint imports.
+  core/                  HAND-WRITTEN runtime. Everything generated code calls.
+  generated/             GENERATED and committed. Never edit by hand.
+    api.ts               openapi-typescript output (types only, ~18k lines).
+    contact.ts, …        One module per spec tag.
+  undocumented.ts        HAND-WRITTEN. Endpoints sevDesk serves but does not document.
+  tests/                 Test helpers and cross-cutting tests (not published).
+```
+
 - **Tests**: Co-located with source files using `.test.ts` suffix
 - **Configuration**: Uses `@peerigon/configs` for shared TypeScript, ESLint, and Oxfmt configs
 
-## Code Organization
+## Architecture
 
-- Functions are implemented in individual files in `src/`
-- Each function has comprehensive unit tests using Vitest
-- Uses ES module syntax throughout (`.ts` extensions in imports)
-- **Environment variables**: Use `src/env.ts`; destructure at top-level module scope so missing vars fail immediately.
+Each generated module is a thin binding; all behaviour lives in `src/core/`:
+
+```ts
+export const getContacts: PaginatedOperation<"getContacts"> = defineOperation("getContacts", {
+  method: "GET",
+  path: "/Contact",
+  paginated: true,
+});
+```
+
+`defineOperation` (`src/core/operation.ts`) derives the entire type surface — query params, path params, request body, response — from `operations[operationId]` in the generated `api.ts`. That is why a 154-endpoint SDK is a few hundred lines of runtime.
+
+**Modularity is a hard requirement.** Consumers import `@peerigon/sevdesk/contact`, not the whole SDK. So:
+
+- `src/main.ts` must **never** import anything from `src/generated/` except types.
+- Generated modules must import from `src/core/`, never from each other.
+
+**Query params are intentionally open.** `QueryOf<Id>` is the spec's declared params intersected with `Record<string, QueryValue>`. sevDesk documents most filter params only in prose, so rejecting unknown keys would make the SDK unusable. Declared params are still fully checked. Nested objects (e.g. `sevQuery`) are flattened to bracket keys; form-data uploads take a `FormData` body.
+
+## Making changes
+
+### sevDesk changed their API
+
+```bash
+npm run spec:update     # refetch openapi/openapi.yaml
+npm run generate        # rebuild src/generated/ + exports maps
+npm test
+```
+
+Review the spec diff and the generated diff separately — the spec diff explains the generated one. Commit both.
+
+### An endpoint's pagination is wrong
+
+`isPaginated()` in `scripts/generate/operations.ts` infers this, because the spec never states it: `limit`/`offset`/`countAll` are documented in sevDesk's API description, not on the operations. The rule is _GET + no path params + an `{objects: [...]}` array response_.
+
+- Wrong for **one** endpoint → add it to `notPaginated` / `alsoPaginated` in `scripts/generate/overrides.ts`.
+- Wrong for a **class** of endpoints → fix the rule, and check the override list still applies.
+
+Then `npm run generate`.
+
+### An endpoint sevDesk serves but does not document
+
+`src/undocumented.ts` holds them, exported as `@peerigon/sevdesk/undocumented`. It is hand-written
+and the generator never touches it. Add one with `defineUndocumentedOperation`, supplying the
+response type by hand — nothing can be derived, so the type is a promise this SDK makes rather than
+one the spec backs. Keep the model types open (`[key: string]: unknown`), since no spec pins the
+fields down.
+
+Every one of these **must** have a smoke test. A generated module failing smoke means sevDesk
+changed something; an undocumented one failing means we got the path or shape wrong, or the
+endpoint is gone — and nothing else in the build can catch that.
+
+If sevDesk ever documents one, it moves to a generated module and the `undocumented` export is
+deprecated, which is a breaking change for consumers importing it.
+
+### An endpoint is missing or the generated code is wrong
+
+Do **not** edit `src/generated/`. It is deleted and rewritten on every `npm run generate`, and `npm run test:generated` fails the build if it has drifted. Change the spec snapshot, the generator, or the overrides instead.
+
+For an endpoint sevDesk offers but does not document, consumers can call `defineOperation` themselves — it is exported from the package root.
+
+### Renaming rules are a breaking change
+
+`moduleName()` and `exportName()` in `scripts/generate/naming.ts` decide the import subpaths and function names consumers write. Changing either renames the public API. Treat it as a breaking change and use a `BREAKING CHANGE:` footer.
+
+The spec's casing is inconsistent (`getContacts` beside `UpdateCommunicationWay` and `getcreditNotePositions`). `exportName` only lowers the first character — deliberately. Re-splitting glued-together words would be guesswork, and a later change to that guess would rename exports again.
+
+## Constraints worth knowing
+
+- **This is a library, not an app. Nothing in `src/` may read the environment.** There is no `src/env.ts`, and there must not be — a top-level env read would throw on `import` for every consumer without that variable set. The API token is passed in via `createClient({ apiToken })`. (The root styleguide's advice to destructure env vars at module scope applies to applications; it does not apply here.)
+- **The error domain is claimed once.** `errors.domain("SevDesk")` in `src/core/errors.ts` throws if the name is claimed twice, so that call must stay the only one. Do not mutate `errors.serialize.includeStack` from library code — that global belongs to the consuming app.
+- **`src/generated/api.ts` is excluded from ESLint** (`eslint.config.js`). It is machine output shaped by sevDesk's spec and is already checked by `tsc`. The tag modules beside it _are_ linted and must stay clean.
+- **JSR rejects "slow types".** Every public symbol needs an explicit type annotation — which is why generated operations are emitted as `export const x: Operation<"x"> = …` and the error classes in `src/core/errors.ts` spell out their constructor types. `npm run test:jsr` catches regressions.
+- **`openapi-typescript` declares a `typescript@^5` peer** while this repo is on TypeScript 6. `package.json` has an `overrides` entry for it; `.npmrc` keeps `strict-peer-deps` meaningful for everything else.
+- **The smoke tests run against a production sevDesk account.** They are read-only by mechanism, not by convention: `src/tests/read-only-client.ts` blocks any non-GET request before it is sent, and one test asserts that guard still works. Two rules when touching `src/tests/smoke.test.ts` — never call a mutating operation, and never assert on or log private data (assert `objectName`, types and HTTP status; never a name, an amount, or an id's value). They are excluded from `npm test`, which must never need a token or the network; run them with `npm run smoke`. The script is deliberately _not_ named `test:smoke`, because `npm test` runs `run-p test:*`.
+- **`generate:format` runs oxfmt twice on purpose.** oxfmt's JSDoc reflow needs a second pass to reach a fixed point on the generated `api.ts`; with one pass, `npm run generate` leaves the tree in a state `npm run test:format` rejects. `verify-up-to-date.ts` mirrors this.
+- **The exports maps are generated** into both `package.json` and `jsr.json` (neither registry supports the wildcards we'd need). Don't hand-edit them; run `npm run generate`.
+
+## The sevDesk API token
+
+The smoke tests need a **production** sevDesk token. It is never committed, and never written to disk.
+
+### Locally — 1Password Environments
+
+The token comes from a 1Password Environment mounted as a local `.env` file
+([docs](https://www.1password.dev/environments/local-env-file)): 1Password app → your Environment →
+**Connect to** → **Local .env file** → point it at this repo → **Mount .env file**. Then
+`npm run smoke` works with no further setup.
+
+Things that follow from how the mount works, and that are easy to get wrong:
+
+- **`.env` is a named pipe, not a file.** Its contents are served on demand and never stored on
+  disk. `vite`'s `loadEnv` reads it like any dotenv file, so nothing in the code has to know.
+- **Only `vitest.smoke.config.ts` may read it.** Two separate things enforce that in
+  `vite.config.ts`, and both are needed:
+  - It does not call `loadEnv`, so the token never reaches `test.env` and therefore never reaches a
+    unit test's `process.env`.
+  - It sets `envDir` to the empty `config/no-dotenv/` directory. **Vite loads `.env` from `envDir`
+    by itself**, so dropping `loadEnv` alone does not stop the read — with the default `envDir`,
+    `npm test` pops a 1Password prompt every run, and blocks _forever_ when the pipe is mounted but
+    not being served (1Password locked, or authorization declined).
+
+  `src/tests/env-isolation.test.ts` fails if either is undone. Do not "restore" them.
+
+- **The `SEVDESK_` prefix on `loadEnv` is load-bearing**, not cosmetic: it stops any other variable
+  in the Environment from being lifted into the test process.
+- If a plain `.env` file already exists, delete it and commit that removal before mounting, or git
+  will fight the pipe.
+
+### In CI — `op run`
+
+`.github/workflows/smoke.yml` reads the _same_ Environment via the 1Password CLI, so there is one
+place to rotate the token:
+
+```yaml
+op run --environment "$OP_ENVIRONMENT_ID" -- npm run smoke
+```
+
+It needs two repository settings, both configured in GitHub:
+
+| Kind     | Name                       | What it is                                                    |
+| -------- | -------------------------- | ------------------------------------------------------------- |
+| Secret   | `OP_SERVICE_ACCOUNT_TOKEN` | 1Password service account with read access to the Environment |
+| Variable | `OP_ENVIRONMENT_ID`        | The Environment's id                                          |
+
+A preflight step fails with a readable message when either is missing. `op run --environment` needs
+a **beta** CLI build (pinned in the workflow); it is not in the stable release yet.
+
+**Keep smoke in its own workflow.** The sevDesk token is a production credential, and the point of
+the split is that it is never present in the `test-and-release` job — the one with `contents: write`
+and npm provenance. Do not merge the two. Smoke also does not run on `pull_request`: forked PRs get
+no secrets, and each run costs real API calls. It does not gate releases, so a sevDesk outage cannot
+block publishing.
 
 ## Commit Messages
 
 Use [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages (e.g. `feat: ...`, `fix: ...`, `chore: ...`). This is enforced by commitlint, both via a `commit-msg` git hook (`.husky/commit-msg`) and via `npm run test:commits` (config in `commitlint.config.js`), which catches commits made with `--no-verify`.
+
+**Important**: For breaking changes, do not use the `!` shorthand (e.g. `feat!:`). semantic-release uses the `conventional-changelog-angular` preset, whose header parser ignores `!` — such commits are silently dropped from the release. Always add a `BREAKING CHANGE:` footer instead.
+
+## Releasing
+
+Releases are made by semantic-release from commit messages; the `version` field in `package.json` and `jsr.json` is a placeholder and must not be edited.
+
+This package continues the version line of the previous `@peerigon/sevdesk` (last published: **2.1.0**), but that history lives in a different repository, so this repo has no matching tag. semantic-release derives the version from git tags — **without a seed tag the first release would be 1.0.0, published over the existing 2.x line.** Seed it once, on the last template commit before the rewrite:
+
+```bash
+git tag v2.1.0 3f5d32c
+git push origin v2.1.0
+```
+
+Verified with `@semantic-release/commit-analyzer`: with that tag in place, the rewrite's `BREAKING CHANGE:` footer yields a `major` bump, so the first release is **3.0.0**, and the release notes cover only the rewrite rather than the whole template history.
+
+Note that a `semantic-release --dry-run` prunes local-only tags, so re-create the tag if you run one before pushing it.
 
 ## Template as a git remote
 
@@ -78,10 +255,12 @@ This will:
 
 Restore project-specific files and changes:
 
-- **package.json**: Restore original dependencies but keep the dependency updates from the template repository
+- **package.json**: Restore original dependencies but keep the dependency updates from the template repository. Keep the `exports` map, the `generate:*`/`spec:update`/`test:generated` scripts and the `overrides` entry.
 - **README.md**: Restore original project documentation
 - **AGENTS.md**: Restore project specific instructions and include changes from the template repository
 - **src/**: Restore project specific source code and include changes from the template repository
+- **eslint.config.js / tsconfig.build.json / vite.config.ts**: Keep this repo's additions (the `src/generated/api.ts` ignore, `"types": ["node"]`, and the env-free vitest config)
+- Do **not** let the template reintroduce `src/env.ts` — see [Constraints worth knowing](#constraints-worth-knowing)
 - If a file has been deleted in **this** repository, **do not** restore it from the template repository.
 
 ### Step 3: Verify and Clean Up
