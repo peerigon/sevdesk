@@ -11,10 +11,6 @@ export default [
     // sevDesk's spec, not by us. Restyling it is not possible (it is
     // regenerated) and not useful (`tsc` already checks it). The tag modules in
     // the same directory are emitted by our own generator and stay linted.
-    ignores: [
-      "src/generated/api.ts",
-      // semantic-release config; not part of the TS project graph
-      ".releaserc.js",
-    ],
+    ignores: ["src/generated/api.ts"],
   },
 ];
