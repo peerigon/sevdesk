@@ -59,7 +59,7 @@ jobs:
       - name: 🔍 Install dependencies
         if: steps.cache-node_modules.outputs.cache-hit != 'true'
         run: |
-          npm ci --ignore-scripts --prefer-offline --no-audit --strict-peer-deps
+          npm ci --prefer-offline --no-audit
 
       # `op run --environment` reads the same 1Password Environment that serves
       # the local `.env` file, so there is one place to rotate the token.
@@ -69,22 +69,6 @@ jobs:
         uses: 1password/install-cli-action@a5215d3a7f75c1629216c465ea9ab3ab399c4b71 # v4.0.0
         with:
           version: 2.35.0-beta.01
-
-      - name: 🩺 Check the 1Password Environment is configured
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          OP_ENVIRONMENT_ID: ${{ vars.OP_ENVIRONMENT_ID }}
-        # Fails with an actionable message instead of an opaque `op` error when
-        # the repository secret or variable hasn't been set up yet.
-        run: |
-          if [ -z "$OP_SERVICE_ACCOUNT_TOKEN" ]; then
-            echo "::error::Missing secret OP_SERVICE_ACCOUNT_TOKEN — see AGENTS.md, 'Smoke tests in CI'."
-            exit 1
-          fi
-          if [ -z "$OP_ENVIRONMENT_ID" ]; then
-            echo "::error::Missing variable OP_ENVIRONMENT_ID — see AGENTS.md, 'Smoke tests in CI'."
-            exit 1
-          fi
 
       - name: 💨 Run smoke tests
         env:
