@@ -94,8 +94,7 @@ jobs:
         # Call to npm publish --dry-run is currently necessary, see https://github.com/stackblitz-labs/pkg.pr.new/issues/320
         run: |
           npm publish --dry-run --tag test-release
-          # pkg.pr.new 404s until Continuous Releases are enabled for this repo.
-          npx pkg-pr-new publish || true
+          npx pkg-pr-new publish
 
       - name: 🚀 Release on npm and jsr
         if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' }}
