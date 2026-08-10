@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createClient, defaultBaseUrl } from "./client.ts";
 
@@ -38,5 +38,32 @@ describe("createClient", () => {
     expect(() => createClient({ apiToken: "" })).toThrowErrorMatchingInlineSnapshot(
       `[TypeError: createClient() requires an apiToken]`,
     );
+  });
+
+  describe("fetch", () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("forwards to whatever globalThis.fetch is at request time, not at createClient() time", async () => {
+      vi.stubGlobal("fetch", vi.fn());
+      const client = createClient({ apiToken });
+      const newFetch = vi.fn(async () => new Response());
+
+      vi.stubGlobal("fetch", newFetch);
+      await client.fetch("https://example.test");
+
+      expect(newFetch).toHaveBeenCalledWith("https://example.test");
+    });
+
+    it("uses an explicitly passed fetch as-is, ignoring later changes to globalThis.fetch", async () => {
+      const explicitFetch = vi.fn(async () => new Response());
+      const client = createClient({ apiToken, fetch: explicitFetch });
+
+      vi.stubGlobal("fetch", vi.fn());
+      await client.fetch("https://example.test");
+
+      expect(explicitFetch).toHaveBeenCalledWith("https://example.test");
+    });
   });
 });
