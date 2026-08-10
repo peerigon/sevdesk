@@ -41,7 +41,12 @@ export type Client = {
 export const createClient = ({
   apiToken,
   baseUrl = defaultBaseUrl,
-  fetch = globalThis.fetch,
+  // Forwarded lazily instead of defaulted to `globalThis.fetch` here: a default parameter is
+  // evaluated once, at `createClient()` time, capturing whatever `fetch` was current then. Some
+  // consumers (e.g. tests using MSW) swap `globalThis.fetch` in after building the client, so a
+  // captured reference would silently bypass that. Only applies to the default — an explicitly
+  // passed `fetch` is used as-is, since callers who supply one want that exact reference.
+  fetch = async (...args) => globalThis.fetch(...args),
   headers = {},
 }: ClientConfig): Client => {
   if (!apiToken) {
